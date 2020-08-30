@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    {#    <meta http-equiv="X-UA-Compatible" content="ie=edge">#}
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="shortcut icon" href="{% static 'images/disk.png' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'styles/main-style.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/header-style.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/table-style.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/menu-style.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/form-style.css' %}">
+</head>
+<body>
+{% include 'include/header.html' %}
+{% include 'include/menu.html' %}
+{% block content %}
+
+{% endblock content %}
+<script src="{% static 'js/menu-script.js' %}"></script>
+</body>
+</html>

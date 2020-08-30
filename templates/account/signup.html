@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Signup{% endblock title %}
+
+{% block content %}
+    <center>
+        <h2>
+            Зарегестриорваться
+        </h2>
+    </center>
+    <br>
+    {% if form.errors %}
+        <center>
+            <p>
+                Не удалось зарегестрировать пользователя. Либо пользователь с таким логином уже существует, либо
+                введённые вами пароли не совпадают.
+            </p>
+        </center>
+    {% endif %}
+    <div id="form-margin">
+        <form action="{% url 'account_signup' %}" method="POST">
+            {% csrf_token %}
+            <center>
+                <div class="g">
+                    <input type="text" class="text" name="username" autocomplete="off" id="login_id" required>
+                    <label class="placeholder" for="login_id">Логин</label>
+                    <span class="bar"></span>
+                </div>
+{#                <div class="g">#}
+{#                    <input type="text" class="text" name="email" autocomplete="off" id="input1">#}
+{#                    <label class="placeholder" for="input1">Email</label>#}
+{#                    <span class="bar"></span>#}
+{#                </div>#}
+                <div class="g">
+                    <input type="password" class="text" name="password1" id="password1_id" required>
+                    <label class="placeholder" for="password1_id">Пароль</label>
+                    <span class="bar"></span>
+                </div>
+                <div class="g">
+                    <input type="password" class="text  " name="password2" autocomplete="off" id="password2_id" required>
+                    <label class="placeholder" for="password2_id">Повторите</label>
+                    <span class="bar"></span>
+                </div>
+                <br>
+                <input type="submit" id="btnsubmit">
+                <h3>
+                    Уже есть аккаунт? <br><br><a href="{% url 'login' %}">Войдите</a>.
+                </h3>
+{#                <h3>#}
+                {#                    * - обязательные поля#}
+                {#                </h3>#}
+            </center>
+        </form>
+    </div>
+{% endblock %}

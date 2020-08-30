@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Disk{% endblock title %}
+
+{% block content %}
+    <div id="box">
+        <div class="small">
+            <div class="block">
+                <div class="content">
+                    <h2>
+                        <p>
+                            Disk - мой последний проект. С его помощью можно хранить файлы на сервере. Я до максимума (в
+                            моём
+                            понимании) прокачал безопасность. Так что пользуйтесь, мои посетители!
+                        </p>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="small">
+            <div class="block">
+                <div class="content" onclick="goToMyDisk()">
+                    <h2>
+                        Мой диск
+                    </h2>
+                </div>
+            </div>
+            <div class="block">
+                <div class="content" onclick="goToReg()">
+                    <h2>
+                        Зарегестрироваться
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

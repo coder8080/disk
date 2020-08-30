@@ -1,0 +1,70 @@
+/* Стиль формы */
+
+#form-margin{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+form{
+    padding: 10px 40px 40px 40px;
+    background-color: aqua;
+    border-radius: 15px;
+}
+
+.g{
+    margin-top: 25px;
+    position: relative;
+    width: 150px;
+}
+
+.text{
+    font-size: 20px;
+    padding: 5px;
+    width: 150px;
+    border: none;
+    border-bottom: 1px solid gray;
+    background-color: aqua;
+    z-index: 1;
+}
+
+.placeholder{
+    position: absolute;
+    font-size: 20px;
+    top: 5px;
+    left: 5px;
+    transition: 0.3s;
+    cursor: text;
+}
+
+.text:focus{
+    outline: none;
+}
+
+.text:focus ~ .placeholder,
+.text:valid ~ .placeholder{
+    font-size: 15px;
+    top: -15px;
+}
+
+.bar{
+    position: absolute;
+    bottom: 0px;
+    width: 0px;
+    height: 2px;
+    left: 0px;
+    background-color: blue;
+    transition: 0.3s;
+}
+
+.text:focus ~ .bar,
+.text:valid ~ .bar{
+    width: 160px;
+}
+
+#btnsubmit{
+    padding: 15px;
+    border-radius: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}

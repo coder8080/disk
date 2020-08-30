@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ user.username }} | disk
+{% endblock title %}
+
+{% block content %}
+    <center>
+        <h2>
+            Личный кабинет пользователя {{ user.username }}
+        </h2>
+    </center>
+    <br>
+    <div id="box">
+        <div class="small">
+            <div class="block">
+                <div class="content">
+                    <h2>
+                        <p>
+                            У вас осталось места: <%SIZE%>мб из 5000мб
+                        </p>
+                        <p>
+                            Приобрести больше места
+                        </p>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="small">
+            <div class="block">
+                <div class="content" onclick="goToMyDisk()">
+                    <h2>
+                        Мой диск
+                    </h2>
+                </div>
+            </div>
+            <div class="block">
+                <div class="content" onclick="goToOut()">
+                    <h2>
+                        Выйти
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

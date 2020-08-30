@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Войти
+{% endblock title %}
+
+{% block content %}
+    <center>
+        <h2>
+            Войти
+        </h2>
+    </center>
+    <br>
+    {% if form.errors %}
+        <center>
+            <p>
+                Пожалуйста, введите корректные логин и пароль
+            </p>
+        </center>
+    {% endif %}
+    {% if user.is_authenticated %}
+        <center>
+            <p>
+                Вы уже вошли ранее. <a href="/mydisk">Перейти</a> в раздел "мой диск"
+            </p>
+        </center>
+    {% endif %}
+    <div id="form-margin">
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <center>
+                <div class="g">
+                    <input type="text" class="text" name="username" autocomplete="off" id="input1" required>
+                    <label class="placeholder" for="input1">Логин</label>
+                    <span class="bar"></span>
+                </div>
+                <div class="g">
+                    <input type="text" class="text" name="password" id="input2" required>
+                    <label class="placeholder" for="input2">Пароль</label>
+                    <span class="bar"></span>
+                </div>
+                <br>
+                <input type="submit" id="btnsubmit">
+                <h3>
+                    Ещё нет аккаунта? <br><br><a href="http://localhost/registration">Зарегестрируйтесь</a>.
+                </h3>
+            </center>
+        </form>
+    </div>
+{% endblock content %}

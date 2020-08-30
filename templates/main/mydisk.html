@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Диск пользователя {{ user.username }} | Disk
+{% endblock title %}
+
+{% block content %}
+    <style>
+        #fileBox {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+
+        .fileblock {
+        {#padding: 30px;#} padding-left: 30px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .fileblock a {
+            margin-left: 10px;
+        }
+
+        .window {
+            position: relative;
+        }
+
+        #close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .parent {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+    </style>
+    <script>
+        const createDir = () => {
+            let parent = document.querySelector(".parent");
+            parent.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+
+        const hide = () => {
+            let parent = document.querySelector(".parent");
+            parent.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+    </script>
+    <center>
+        <h2>
+            Диск пользователя {{ user.username }}
+        </h2>
+    </center>
+    <h2>
+        <p>
+            Ваши файлы:
+        </p>
+    </h2>
+    <br>
+    <div id="fileBox">
+        {% for folder in folders %}
+            <div class="fileblock">
+                <img src="{% static 'images/folder.png' %}" alt="Папка" width="60px" height="60px">
+                <h2>
+                    {{ folder }}
+                </h2>
+                <a href="/mydisk{% if dir != "none" %}/{{ dir }}`{% endif %}{% if dir == "none" %}/{% endif %}{{ folder }}">
+                    <img src="{% static '/images/open.png' %}" alt="открыть" width="45px" height="45px">
+                </a>
+                <a href="/delete-folder{% if dir == "/none" %}/none/
+                    {{ folder }}{% else %}/{{ dir }}/{{ folder }}{% endif %}">
+                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                </a>
+            </div>
+        {% endfor %}
+        {% for file in files %}
+            <div class="fileblock">
+                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
+                <h2>
+                    {{ file }}
+                </h2>
+                <a href="/download{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}"
+                   download>
+                    <img src="{% static '/images/download.png' %}" alt="скачать" , width="55px" height="55px">
+                </a>
+                <a href="/delete{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}">
+                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    <br>
+    <h2>
+        <p>
+            <a href="/upload/?dir={{ dir }}">
+                Загрузить файл
+            </a>
+        </p>
+        <p>
+            <a onclick="createDir()" style="color: blue;
+            cursor: pointer;" id="create">
+                <u>
+                    Создать папку
+                </u>
+            </a>
+        </p>
+        <p>
+            <a href="/main">
+                Личный кабинет
+            </a>
+        </p>
+        {% if dir != "none" %}
+            <p>
+                <a href="/mydisk/none">
+                    В главную директорию
+                </a>
+            </p>
+        {% endif %}
+    </h2>
+    <div class="parent">
+        <form action="/create-folder" method="POST" class="window">
+            {% csrf_token %}
+            <input type="hidden" name="folder" value="{{ dir }}">
+            <center>
+                <img src="{% static '/images/1.png' %}" alt="закрыть" id="close" onclick="hide()">
+                <div class="g">
+                    <input type="text" class="text" name="folderName" id="folderName" required>
+                    <label class="placeholder" for="folderName">Имя папки</label>
+                    <span class="bar"></span>
+                </div>
+                <br>
+                <input type="submit" id="btnsubmit">
+            </center>
+        </form>
+    </div>
+{% endblock content %}

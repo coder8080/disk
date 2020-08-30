@@ -1,0 +1,5 @@
+/venv
+/media/files
+/.idea
+/static/admin/
+/db.sqlite3
