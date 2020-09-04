@@ -1,4 +1,4 @@
-from django.core.files.storage import FileSystemStorage
+import os
 
 
 def create_user(sender, instance, signal, created, **kwargs):
@@ -7,6 +7,7 @@ def create_user(sender, instance, signal, created, **kwargs):
     if created:
         disk = Disk(user=instance)
         path = "./files/" + instance.username + "/"
-        fs = FileSystemStorage()
+        path_dir = "./media/files/" + instance.username + "/"
+        os.mkdir(path_dir)
         disk.path = path
         disk.save()

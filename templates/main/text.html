@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Препросмотр
+{% endblock title %}
+
+{% block content %}
+    <center>
+        <h2>
+            Предпросмотр текстового файла
+        </h2>
+    </center>
+    <br>
+    <div id="form-margin">
+        <form action="{% url 'retext' %}" method="post">
+            {% csrf_token %}
+            <textarea name="text" cols="30" rows="10">
+                {{ text }}
+            </textarea>
+            <input type="hidden" name="folder" value="{{ folder }}">
+            <input type="hidden" name="filename" value="{{ filename }}">
+            <br>
+            <input type="submit" value="Запистаь изменения в файл">
+        </form>
+    </div>
+{% endblock content %}
