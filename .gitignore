@@ -1,5 +1,5 @@
-/venv
-/media/files/
-/.idea
-/static/admin/
-/db.sqlite3
+venv
+media/files/*
+.idea
+static/admin/
+db.sqlite3
