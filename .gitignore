@@ -1,5 +1,6 @@
 venv
 media/files/*
+!media/files/.keepdir
 .idea
 static/admin/
 db.sqlite3
