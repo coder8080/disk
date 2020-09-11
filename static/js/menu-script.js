@@ -41,6 +41,10 @@ function goToOut(){
     document.location.replace("/accounts/logout");
 }
 
+function goToAdmin() {
+    document.location.replace("/admin")
+}
+
 const goToAuthor = () => {
     document.location.replace("/author");
 }
