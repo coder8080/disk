@@ -16,6 +16,14 @@ from .models import Disk
 from colorama import init, Fore, Style
 init()
 
+def get_size(path):
+  size = 0
+  for dirpath, dirnames, filenames in os.walk(path):
+    for f in filenames:
+        fp = os.path.join(dirpath, f)
+        size += os.path.getsize(fp)
+  return size
+
 
 class MainView(View):
     """Главная страница"""
@@ -245,6 +253,12 @@ class RemoveFolderView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к будущему файлу
             filepath = folder + foldername
+            # Получаем размер папки
+            size_of_folder = get_size(filepath)
+            # Вычитаем его из диска пользователя
+            disk = Disk.objects.get(user__username=request.user.username)
+            disk.size -= size_of_folder
+            disk.save()
             # Удаляем папку
             shutil.rmtree(filepath)
             # Перенаправляем пользователля обратно на страницу со списком файлов

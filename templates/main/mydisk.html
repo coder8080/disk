@@ -48,6 +48,11 @@
             align-items: center;
             z-index: 1;
         }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
     </style>
     <script>
         const createDir = () => {
@@ -125,30 +130,33 @@
     </div>
     <br>
     <h2>
-        <p>
-            <a href="/upload/?dir={{ dir }}">
-                Загрузить файл
-            </a>
-        </p>
-        <p>
-            <a onclick="createDir()" style="color: blue;
-            cursor: pointer;" id="create">
-                <u>
-                    Создать папку
-                </u>
-            </a>
-        </p>
-        <p>
-            <a href="/main">
-                Личный кабинет
-            </a>
-        </p>
+        <a href="/upload/?dir={{ dir }}">
+            <div class="block">
+                <div class="content">
+                    Загрузить файл
+                </div>
+            </div>
+        </a>
+        <div class="block" onclick="createDir()">
+            <div class="content">
+                Создать папку
+            </div>
+        </div>
+        <a href="/main">
+            <div class="block">
+                <div class="content">
+                    Личный кабинет
+                </div>
+            </div>
+        </a>
         {% if dir != "none" %}
-            <p>
-                <a href="/mydisk/none">
-                    В главную директорию
-                </a>
-            </p>
+            <a href="/mydisk/none">
+                <div class="block">
+                    <div class="content">
+                        В главную директорию
+                    </div>
+                </div>
+            </a>
         {% endif %}
     </h2>
     <div class="parent">
