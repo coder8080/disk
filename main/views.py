@@ -14,15 +14,17 @@ from django.views import View
 from .models import Disk
 # Импортируем штуку чтобы выводить цвета в консоли
 from colorama import init, Fore, Style
+
 init()
 
+
 def get_size(path):
-  size = 0
-  for dirpath, dirnames, filenames in os.walk(path):
-    for f in filenames:
-        fp = os.path.join(dirpath, f)
-        size += os.path.getsize(fp)
-  return size
+    size = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            size += os.path.getsize(fp)
+    return size
 
 
 class MainView(View):
@@ -92,7 +94,11 @@ class UploadView(View):
                 print(Fore.RED)
                 print(f"У пользователя {request.user.username} закончилось место на диске")
                 print(Style.RESET_ALL)
-                return render(request, 'main/overflow.html')
+                return render(request, 'main/message.html', {
+                    "label": "Недостаточно места", "text": "У вас недостаточно места на диске, чтобы загрузить этот файл. Попробуйте удалить с диска "
+                            "файлы, которыми вы уже не пользуетесь. Если вам нужно больше места, то свяжитесь с "
+                            "администратором сайта. Скоро будут добавлены промокоды на увеличение места.",
+                    "page_name": "главную", "page_url": "/"})
         else:
             # Если не авторизован, то перебрасываем на страницу входа
             return redirect("/accounts/login")
@@ -293,7 +299,7 @@ class CreateFolderView(View):
             return redirect("/accounts/login")
 
 
-class TextView(View):
+class PreView(View):
     """Это чтобы пользователь мог удалять файлы"""
 
     def get(self, request, folder, filename):
@@ -309,16 +315,22 @@ class TextView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к удаляемому файлу
             filepath = folder + filename
-            file = open(filepath)
-            text = file.read()
-            file.close()
-            # Перенаправляем пользователля обратно на страницу со списком файлов
-            return render(request, 'main/text.html', {"text": text, "folder": folder, "filename": filename})
+            file_ext = os.path.splitext(filepath)[1]
+            if file_ext == ".txt":
+                file = open(filepath)
+                text = file.read()
+                file.close()
+                # Перенаправляем пользователля обратно на страницу со списком файлов
+                return render(request, 'main/text_preview.html', {"text": text, "folder": folder, "filename": filename})
+            else:
+                return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен", "text": "Данный файл не поддерживает предварительный "
+                                                                     "просмотр.", "page_name": "страницу моего диска",
+                                                             "page_url": "/mydisk"})
         else:
             return redirect("/accounts/login")
 
 
-class ReTextView(View):
+class ReWriteView(View):
     def post(self, request):
         folder = request.POST.get("folder")
         filename = request.POST.get("filename")

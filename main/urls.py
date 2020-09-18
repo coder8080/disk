@@ -11,7 +11,7 @@ urlpatterns = [
     path("delete/<str:folder>/<str:filename>", views.RemoveView.as_view(), name="delete"),
     path("delete-folder/<str:folder>/<str:foldername>", views.RemoveFolderView.as_view(), name="delete-folder"),
     path("create-folder", views.CreateFolderView.as_view(), name="create-folder"),
-    path("text/<str:folder>/<str:filename>", views.TextView.as_view(), name='text'),
-    path("retext/", views.ReTextView.as_view(), name="retext"),
+    path("text/<str:folder>/<str:filename>", views.PreView.as_view(), name='text'),
+    path("retext/", views.ReWriteView.as_view(), name="retext"),
     path("", views.MainView.as_view(), name="main-page")
 ]
