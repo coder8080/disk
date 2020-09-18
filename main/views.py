@@ -2,9 +2,9 @@
 from django.core.files.storage import FileSystemStorage
 # Импортируем другую штуку для работы с файлами
 import os
-# Импортируем инструмент для удаления папоу со всеми вложенными файлами
+# Импортируем инструмент для удаления папки со всеми вложенными файлами
 import shutil
-# Импортируем шибкую штуку для отправки данных пользователю
+# Импортируем штуку для отправки данных пользователю
 from django.http import HttpResponse
 # Имопртируем возможность рендерить шаблоны и перекидывать пользователя на другие странички
 from django.shortcuts import render, redirect
@@ -15,15 +15,20 @@ from .models import Disk
 # Импортируем штуку чтобы выводить цвета в консоли
 from colorama import init, Fore, Style
 
+# Запускаем возможность вывода цветов в консоль
 init()
 
 
+# Функция для подсчёта размера папки
 def get_size(path):
+    # Объявляем переменную в которой будет находится итоговый результат
     size = 0
+    # Цикл для подсчёта размера всех файлов
     for dirpath, dirnames, filenames in os.walk(path):
         for f in filenames:
             fp = os.path.join(dirpath, f)
             size += os.path.getsize(fp)
+    # Возвращаем результат
     return size
 
 
@@ -95,7 +100,8 @@ class UploadView(View):
                 print(f"У пользователя {request.user.username} закончилось место на диске")
                 print(Style.RESET_ALL)
                 return render(request, 'main/message.html', {
-                    "label": "Недостаточно места", "text": "У вас недостаточно места на диске, чтобы загрузить этот файл. Попробуйте удалить с диска "
+                    "label": "Недостаточно места",
+                    "text": "У вас недостаточно места на диске, чтобы загрузить этот файл. Попробуйте удалить с диска "
                             "файлы, которыми вы уже не пользуетесь. Если вам нужно больше места, то свяжитесь с "
                             "администратором сайта. Скоро будут добавлены промокоды на увеличение места.",
                     "page_name": "главную", "page_url": "/"})
@@ -121,7 +127,7 @@ class PrivateOfficeView(View):
 
 
 class DiskView(View):
-    """Обрабатываем get запрос на страницу со списком файлов"""
+    """Страница просмотра файлов"""
 
     def get(self, request, dir):
         # Проверяем, авторизован ли пользователь
@@ -139,7 +145,6 @@ class DiskView(View):
                 dir = "/" + "/".join(folder)
 
             # Объявляем переменные для анализа директории
-            files = []
             files_preview = []
             files_download = []
             folders = []
@@ -148,20 +153,24 @@ class DiskView(View):
             for i in os.walk("./media/files/" + request.user.username + dir):
                 folder += [i]
 
-            # Пытаемся получить вложенные папки
             try:
+                # Пытаемся получить вложенные папки
                 folders = folder[0][1]
             except:
                 pass
 
-            # Пытаемся получить вложенные файлы
             try:
+                # Пытаемся получить вложенные файлы
                 files = folder[0][2]
+                # Сортируем файлы
                 for file in files:
                     testpath, ext = os.path.splitext("./media/files/" + request.user.username + dir + file)
+                    # Проверяем расширение файла
                     if ext == ".txt":
+                        # Если оно .txt, то относим файл к группе с возможностью предворительного просмотра
                         files_preview += [file]
                     else:
+                        # Если другое, то к группе без такой возможности
                         files_download += [file]
             except:
                 pass
@@ -202,12 +211,10 @@ class DownloadView(View):
             filepath = folder + filename
             # Получаем сам файл
             data = open(filepath, "br").read()
-            # # Готовим ответ пользователю
-            # response = HttpResponse(data)
-            # response['Content-Disposition'] = f'attachment; filename="{filename}"'
             # Отправляем файл пользователю
             return HttpResponse(data, "application")
         else:
+            # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
 
 
@@ -219,10 +226,10 @@ class RemoveView(View):
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
             if folder == "none":
-                # Если нет, значит скачиваем из главной директории
+                # Если нет, значит удаляем из главной директории
                 folder = "./media/files/" + request.user.username + "/"
             else:
-                # Если да, то скачиваем из выбранной пользователем директории
+                # Если да, то удаляем из выбранной пользователем директории
                 _folder = folder.split("`")
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к удаляемому файлу
@@ -240,6 +247,7 @@ class RemoveView(View):
             # Перенаправляем пользователля обратно на страницу со списком файлов
             return redirect("/mydisk")
         else:
+            # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
 
 
@@ -251,13 +259,13 @@ class RemoveFolderView(View):
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
             if folder == "none":
-                # Если нет, значит скачиваем из главной директории
+                # Если нет, значит удаляемая папка находится в главной директории
                 folder = "./media/files/" + request.user.username + "/"
             else:
-                # Если да, то скачиваем из выбранной пользователем директории
+                # Если да, то значит удаляемая папка находится в выбранной пользователем директории
                 _folder = folder.split("`")
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            # Получаем абсолютный путь к будущему файлу
+            # Получаем абсолютный путь к удаляемой папке
             filepath = folder + foldername
             # Получаем размер папки
             size_of_folder = get_size(filepath)
@@ -267,7 +275,7 @@ class RemoveFolderView(View):
             disk.save()
             # Удаляем папку
             shutil.rmtree(filepath)
-            # Перенаправляем пользователля обратно на страницу со списком файлов
+            # Перенаправляем пользователя обратно на страницу со списком файлов
             return redirect("/mydisk")
         else:
             return redirect("/accounts/login")
@@ -283,10 +291,10 @@ class CreateFolderView(View):
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
             if folder == "none":
-                # Если нет, значит скачиваем из главной директории
+                # Если нет, значит создаём в главной директории
                 folder = "./media/files/" + request.user.username + "/"
             else:
-                # Если да, то скачиваем из выбранной пользователем директории
+                # Если да, то создаём в выбранной пользователем директории
                 _folder = folder.split("`")
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к будущемей папке
@@ -296,47 +304,55 @@ class CreateFolderView(View):
             # Перенаправляем пользователля обратно на страницу со списком файлов
             return redirect("/mydisk")
         else:
+            # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
 
 
 class PreView(View):
-    """Это чтобы пользователь мог удалять файлы"""
+    """Предпросмотр файлов"""
 
     def get(self, request, folder, filename):
         # Проверяем, авторизован ли пользователь
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
             if folder == "none":
-                # Если нет, значит скачиваем из главной директории
+                # Метод аналогичен прошлым вьюшкам, смотрите там. Мне лень нормально писать комментарии
                 folder = "./media/files/" + request.user.username + "/"
             else:
-                # Если да, то скачиваем из выбранной пользователем директории
                 _folder = folder.split("`")
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            # Получаем абсолютный путь к удаляемому файлу
             filepath = folder + filename
+            # Получаем разрешение файла
             file_ext = os.path.splitext(filepath)[1]
             if file_ext == ".txt":
+                # Если оно .txt, то получаем содержимое файла
                 file = open(filepath)
                 text = file.read()
                 file.close()
-                # Перенаправляем пользователля обратно на страницу со списком файлов
+                # Перенаправляем пользователля на страницу с предпросмотром
                 return render(request, 'main/text_preview.html', {"text": text, "folder": folder, "filename": filename})
             else:
-                return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен", "text": "Данный файл не поддерживает предварительный "
+                # Если другое, то говорим пользователю что данное расширение не поддерживает предворительный просмотр
+                return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен",
+                                                             "text": "Данный файл не поддерживает предварительный "
                                                                      "просмотр.", "page_name": "страницу моего диска",
                                                              "page_url": "/mydisk"})
         else:
+            # Если оно .txt
             return redirect("/accounts/login")
 
 
 class ReWriteView(View):
+    """Запись изменений, внесённых пользователем в текстовый файл на странице предпросмотра"""
+
     def post(self, request):
+        # Получаем данные
         folder = request.POST.get("folder")
         filename = request.POST.get("filename")
         text = request.POST.get("text")
         # Проверяем, авторизован ли пользователь
         if request.user.is_authenticated:
+            # Запусываем данные в файл
             filepath = folder + filename
             file = open(filepath, "w")
             file.write(text)
@@ -344,4 +360,5 @@ class ReWriteView(View):
             # Перенаправляем пользователля обратно на страницу со списком файлов
             return redirect("/mydisk")
         else:
+            # Если оно .txt
             return redirect("/accounts/login")
