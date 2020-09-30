@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Предпросмотр невозможен
+{% endblock title %}
+
+{% block content %}
+    <center>
+        <h2>
+            Предпросмотр невозможен
+        </h2>
+    </center>
+    <h2>
+    <p>
+        Для данного файла недоступен предпросмотр. Вы можете его <a href="{{ path }}" download="{{ filename }}">скачать</a>.
+    </p>
+    </h2>
+{% endblock content %}

@@ -14,6 +14,12 @@ from django.views import View
 from .models import Disk
 # Импортируем штуку чтобы выводить цвета в консоли
 from colorama import init, Fore, Style
+# Импортруем инструмент для работы с рандомом (см. PublicFileView)
+import random
+# Импортируем инструмент для работы со строками
+import string
+# Импортируем модель публичного файла
+from .models import PublicFile
 
 # Запускаем возможность вывода цветов в консоль
 init()
@@ -145,8 +151,10 @@ class DiskView(View):
                 dir = "/" + "/".join(folder)
 
             # Объявляем переменные для анализа директории
-            files_preview = []
-            files_download = []
+            files_preview_linked = []
+            files_preview_unlinked = []
+            files_download_linked = []
+            files_download_unlinked = []
             folders = []
             folder = []
             # Сканируем директорию
@@ -164,19 +172,39 @@ class DiskView(View):
                 files = folder[0][2]
                 # Сортируем файлы
                 for file in files:
-                    testpath, ext = os.path.splitext("./media/files/" + request.user.username + dir + file)
-                    # Проверяем расширение файла
-                    if ext == ".txt":
-                        # Если оно .txt, то относим файл к группе с возможностью предворительного просмотра
-                        files_preview += [file]
+                    # Получаем расширение файла
+                    ext = os.path.splitext("./media/files/" + request.user.username + dir + file)[1]
+                    try:
+                        test = PublicFile.objects.get(
+                            pathToFile="./media/files/" + request.user.username + dir + "/" + file)
+                        linked = True
+                    except:
+                        linked = False
+                    # Проверяем расширение файла и то, в публичном ли он доступе
+                    print("./media/files/" + request.user.username + dir + "/" + file)
+                    if ext == ".txt" and linked is True:
+                        work = [file, test.url]
+                        files_preview_linked += [work]
+                    elif ext == ".txt" and linked is False:
+                        files_preview_unlinked += [file]
+                    elif ext is not ".txt" and linked is True:
+                        work = [file, test.url]
+                        files_download_linked += [work]
+                    elif ext is not ".txt" and linked is False:
+                        files_download_unlinked += [file]
                     else:
-                        # Если другое, то к группе без такой возможности
-                        files_download += [file]
+                        print(Fore.RED)
+                        print("ОШИБКА")
+                        print(Style.RESET_ALL)
             except:
                 pass
             # Возвращаем пользователю отрендеренный шаблон
             return render(request, 'main/mydisk.html',
-                          {"files_download": files_download, "files_preview": files_preview, "folders": folders,
+                          {"files_download_linked": files_download_linked,
+                           "files_download_unlinked": files_download_unlinked,
+                           "files_preview_linked": files_preview_linked,
+                           "files_preview_unlinked": files_preview_unlinked,
+                           "folders": folders,
                            "dir": _dir})
         else:
             # Если нет, то перебрасываем его на страницу входа
@@ -184,7 +212,7 @@ class DiskView(View):
 
 
 class RedirectView(View):
-    """Без этой фигни ничего не будет работать"""
+    """Это нужно чтобы программа не вылетала, когда пользователь не указал папку для просмотра"""
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -308,10 +336,11 @@ class CreateFolderView(View):
             return redirect("/accounts/login")
 
 
-class PreView(View):
+class Preview(View):
     """Предпросмотр файлов"""
 
     def get(self, request, folder, filename):
+        _folder = folder
         # Проверяем, авторизован ли пользователь
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
@@ -330,13 +359,14 @@ class PreView(View):
                 text = file.read()
                 file.close()
                 # Перенаправляем пользователля на страницу с предпросмотром
-                return render(request, 'main/text_preview.html', {"text": text, "folder": folder, "filename": filename})
+                return render(request, 'main/text_preview.html', {"text": text, "folder": folder, "filename": filename, "editable": True})
             else:
-                # Если другое, то говорим пользователю что данное расширение не поддерживает предворительный просмотр
-                return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен",
-                                                             "text": "Данный файл не поддерживает предварительный "
-                                                                     "просмотр.", "page_name": "страницу моего диска",
-                                                             "page_url": "/mydisk"})
+                # return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен",
+                #                                              "text": "Данный файл не поддерживает предварительный "
+                #                                                      "просмотр.", "page_name": "страницу моего диска",
+                #                                              "page_url": "/mydisk"})
+                return render(request, 'main/no_preview.html',
+                              {"path": f"download/{_folder}/{filename}", "filename": filename})
         else:
             # Если оно .txt
             return redirect("/accounts/login")
@@ -360,5 +390,70 @@ class ReWriteView(View):
             # Перенаправляем пользователля обратно на страницу со списком файлов
             return redirect("/mydisk")
         else:
-            # Если оно .txt
+            # Если нет, то перенаправляем пользователя на страницу входа
+            return redirect("/accounts/login")
+
+
+class PublicFileView(View):
+    """Для просмотра общедоступных файлов"""
+
+    def get(self, request, url):
+        # Получаем общедоступный объект из базы данных
+        object_file = PublicFile.objects.get(url=url)
+        # Получаем расширение файла
+        ext = os.path.splitext(object_file.pathToFile)[1]
+        if ext == ".txt":
+            # Если предварительный просмотр возможен, то организуем его
+            file = open(object_file.pathToFile, "r")
+            data = file.read()
+            file.close()
+            del file
+            return render(request, "main/text_preview.html", {"text": data, "editable": False})
+        else:
+            # Если нет, то отправляем пользователя на страницу с соответствующим сообщением
+            return render(request, 'main/no_preview.html',
+                          {"path": f"/download-public/{object_file.url}",
+                           "filename": os.path.basename(object_file.pathToFile)})
+
+
+class DownloadPublicView(View):
+    """Загрузка публичный файлов"""
+
+    def get(self, request, code):
+        # Получаем объект общедоступного файла из базы данных
+        object_file = PublicFile.objects.get(url=code)
+        # Получаем данные из файла
+        file = open(object_file.pathToFile, "br")
+        data = file.read()
+        file.close()
+        del file
+        # Отправляем файл пользователю
+        response = HttpResponse(data, "application")
+        response['Content-Disposition'] = f'attachment; filename={os.path.basename(object_file.pathToFile)}'
+        return response
+
+
+class CreatePublicFileView(View):
+    """Создание публичного файла"""
+
+    def get(self, request, folder, filename):
+        # Проверяем, авторизован ли пользователь
+        _folder = folder
+        if request.user.is_authenticated:
+            # Проверяем, указана ли папка
+            if folder == "none":
+                # Если нет, значит выбранный файл в главной директории
+                folder = "./media/files/" + request.user.username + "/"
+            else:
+                # Если да, значит выбранный файл в другой директории
+                _folder = folder.split("`")
+                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
+            # Получаем абсолютный путь к выбранному файлу
+            filepath = folder + filename
+            test = PublicFile.objects.create(pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
+            test.save()
+            # Перенаправляем пользователя обратно на страницу со списком файлов
+            return redirect("/mydisk")
+        else:
+            # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")

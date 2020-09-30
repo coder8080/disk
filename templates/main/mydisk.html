@@ -67,6 +67,7 @@
             document.body.style.overflow = "auto";
         }
     </script>
+    <script src="{% static 'js/buffer-script.js' %}"></script>
     <center>
         <h2>
             Диск пользователя {{ user.username }}
@@ -94,7 +95,25 @@
                 </a>
             </div>
         {% endfor %}
-        {% for file in files_download %}
+        {% for file in files_download_linked %}
+            <div class="fileblock">
+                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
+                <h2>
+                    {{ file.0 }}
+                </h2>
+                <a href="/download{% if dir == "/none" %}{{ dir }}/{{ file.0 }}{% else %}/{{ dir }}/{{ file.0 }}{% endif %}"
+                   download>
+                    <img src="{% static '/images/download.png' %}" alt="скачать" , width="55px" height="55px">
+                </a>
+                <a href="/delete{% if dir == "/none" %}{{ dir }}/{{ file.0 }}{% else %}/{{ dir }}/{{ file.0 }}{% endif %}">
+                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                </a>
+                <a onclick="copy('{{ file.1 }}')" style="cursor: pointer">
+                    <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px" height="40px">
+                </a>
+            </div>
+        {% endfor %}
+        {% for file in files_download_unlinked %}
             <div class="fileblock">
                 <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
                 <h2>
@@ -107,23 +126,52 @@
                 <a href="/delete{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}">
                     <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
                 </a>
+                <a href="/create-public
+                        {% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}">
+                    <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px" height="40px">
+                </a>
             </div>
         {% endfor %}
-        {% for file in files_preview %}
+        {% for file in files_preview_linked %}
+            <div class="fileblock">
+                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
+                <h2>
+                    {{ file.0 }}
+                </h2>
+                <a href="/download{% if dir == "/none" %}{{ dir }}/{{ file.0 }}{% else %}/{{ dir }}/{{ file.0 }}{% endif %}"
+                   download>
+                    <img src="{% static '/images/download.png' %}" alt="скачать" , width="55px" height="55px">
+                </a>
+                <a href="/delete{% if dir == "/none" %}{{ dir }}/{{ file.0 }}{% else %}/{{ dir }}/{{ file.0 }}{% endif %}">
+                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                </a>
+                <a href="/text{% if dir == "/none" %}{{ dir }}/{{ file.0 }}{% else %}/{{ dir }}/{{ file.0 }}{% endif %}">
+                    <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">
+                </a>
+                <a title="копировать ссылку на файл в буфер обмена" onclick="copy('{{ file.1 }}')"
+                   style="cursor: pointer">
+                    <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px" height="40px">
+                </a>
+            </div>
+        {% endfor %}
+        {% for file in files_preview_unlinked %}
             <div class="fileblock">
                 <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
                 <h2>
                     {{ file }}
                 </h2>
-                <a href="/download{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}"
+                <a href="/download{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file.0 }}{% endif %}"
                    download>
-                    <img src="{% static '/images/download.png' %}" alt="скачать" , width="55px" height="55px">
+                    <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
                 </a>
                 <a href="/delete{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}">
                     <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
                 </a>
                 <a href="/text{% if dir == "/none" %}{{ dir }}/{{ file }}{% else %}/{{ dir }}/{{ file }}{% endif %}">
                     <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">
+                </a>
+                <a href="/">
+                    <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px" height="40px">
                 </a>
             </div>
         {% endfor %}
