@@ -11,15 +11,13 @@ from django.shortcuts import render, redirect
 # Импортируем класс для вообще работы всего кода
 from django.views import View
 # Импортируем нашу модель диска
-from .models import Disk
+from .models import Disk, PublicFile
 # Импортируем штуку чтобы выводить цвета в консоли
 from colorama import init, Fore, Style
-# Импортруем инструмент для работы с рандомом (см. PublicFileView)
-import random
-# Импортируем инструмент для работы со строками
-import string
 # Импортируем модель публичного файла
 from .models import PublicFile
+import hashlib
+from cryptography.fernet import Fernet
 
 # Запускаем возможность вывода цветов в консоль
 init()
@@ -75,7 +73,8 @@ class UploadView(View):
             # Получаем инструмент для работы с файлами
             fs = FileSystemStorage()
             # Получаем файл
-            file = request.FILES['file']
+            files = request.FILES.getlist('files')
+            print(files)
             # Получаем папку, в которую надо загруить файл
             folder = request.POST.get("dir")
             # Корректируем путь для сохранения файла
@@ -84,33 +83,47 @@ class UploadView(View):
             else:
                 __folder = folder.split("`")
                 folder = "" + "/".join(__folder) + "/"
-            # Получаем абсолютный путь к будущему файлу
-            filename = "./files/" + request.user.username + "/" + folder + "/" + file.name
             # Получаем нужный диск
             disk = Disk.objects.get(user__username=request.user.username)
-            # Получаем размер файла, занятое на диске пользователя место и объём диска пользователя
-            sizeOfFile = file.size
-            sizeDisk = disk.size
-            sizeAll = disk.allSize
-            if sizeOfFile + sizeDisk <= sizeAll:
-                # Загружаем файл на диск пользователя
-                fs.save(name=filename, content=file)
-                # Добавляем размер файла к общему размеру диска
-                disk.size += sizeOfFile
-                # Сохраняем изменения
-                disk.save()
-                # Перебрасываем пользователя на страницу с его диском
-                return redirect("/mydisk")
-            else:
-                print(Fore.RED)
-                print(f"У пользователя {request.user.username} закончилось место на диске")
-                print(Style.RESET_ALL)
-                return render(request, 'main/message.html', {
-                    "label": "Недостаточно места",
-                    "text": "У вас недостаточно места на диске, чтобы загрузить этот файл. Попробуйте удалить с диска "
-                            "файлы, которыми вы уже не пользуетесь. Если вам нужно больше места, то свяжитесь с "
-                            "администратором сайта. Скоро будут добавлены промокоды на увеличение места.",
-                    "page_name": "главную", "page_url": "/"})
+            for file in files:
+                # Получаем абсолютный путь к будущему файлу
+                filename = "./files/" + request.user.username + "/" + folder + "/" + file.name
+                # Получаем размер файла, занятое на диске пользователя место и объём диска пользователя
+                sizeOfFile = file.size
+                sizeDisk = disk.size
+                sizeAll = disk.allSize
+                if sizeOfFile + sizeDisk <= sizeAll:
+                    # Загружаем файл на диск пользователя
+                    # encrypted_file = f.encrypt(file.encode())
+                    fs.save(name=filename, content=file)
+                    new_path = "./media/files/" + request.user.username + "/" + folder + file.name
+                    print(new_path)
+                    file = open(new_path, "br")
+                    data = file.read()
+                    file.close()
+                    file.close()
+                    f = Fernet(request.user.password[34:])
+                    encrypted_data = f.encrypt(data)
+                    file = open(new_path, "bw")
+                    file.write(encrypted_data)
+                    file.close()
+                    del file
+                    # Вычисляем и записываем новое количество занятого места
+                    disk.size = get_size(f"./media/files/{request.user.username}")
+                    # Сохраняем изменения
+                    disk.save()
+                else:
+                    print(Fore.RED)
+                    print(f"У пользователя {request.user.username} закончилось место на диске")
+                    print(Style.RESET_ALL)
+                    return render(request, 'main/message.html', {
+                        "label": "Недостаточно места",
+                        "text": "У вас недостаточно места на диске, чтобы загрузить этот файл. Попробуйте удалить с диска "
+                                "файлы, которыми вы уже не пользуетесь. Если вам нужно больше места, то свяжитесь с "
+                                "администратором сайта. Скоро будут добавлены промокоды на увеличение места.",
+                        "page_name": "главную", "page_url": "/"})
+            # Перебрасываем пользователя на страницу с его диском
+            return redirect("/mydisk")
         else:
             # Если не авторизован, то перебрасываем на страницу входа
             return redirect("/accounts/login")
@@ -142,15 +155,14 @@ class DiskView(View):
             _dir = dir
             # Если папка не указана, меняем значение переменной на /
             if dir == "none":
-                dir = "/"
+                dir = ""
             else:
                 # Если указана, то меняем символы ` на /
                 folder = dir.split("`")
-                print(folder)
                 # И записываем значение в переменную
                 dir = "/" + "/".join(folder)
 
-            # Объявляем переменные для анализа директории
+            # Объявляемd переменные для анализа директории
             files_preview_linked = []
             files_preview_unlinked = []
             files_download_linked = []
@@ -181,16 +193,15 @@ class DiskView(View):
                     except:
                         linked = False
                     # Проверяем расширение файла и то, в публичном ли он доступе
-                    print("./media/files/" + request.user.username + dir + "/" + file)
                     if ext == ".txt" and linked is True:
                         work = [file, test.url]
                         files_preview_linked += [work]
                     elif ext == ".txt" and linked is False:
                         files_preview_unlinked += [file]
-                    elif ext is not ".txt" and linked is True:
+                    elif ext != ".txt" and linked is True:
                         work = [file, test.url]
                         files_download_linked += [work]
-                    elif ext is not ".txt" and linked is False:
+                    elif ext != ".txt" and linked is False:
                         files_download_unlinked += [file]
                     else:
                         print(Fore.RED)
@@ -237,75 +248,76 @@ class DownloadView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к будущему файлу
             filepath = folder + filename
+            opened_data = open(filepath, "br").read()
+            try:
+                PublicFile.objects.get(pathToFile=filepath)
+                final_data = opened_data
+            except:
+                f = Fernet(request.user.password[34:])
+                final_data = f.decrypt(opened_data)
             # Получаем сам файл
-            data = open(filepath, "br").read()
             # Отправляем файл пользователю
-            return HttpResponse(data, "application")
+            response = HttpResponse(final_data, 'application')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
         else:
             # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
 
 
 class RemoveView(View):
-    """Это чтобы пользователь мог удалять файлы"""
+    """Для удаления файлов и папок"""
 
-    def get(self, request, folder, filename):
+    def post(self, request):
         # Проверяем, авторизован ли пользователь
         if request.user.is_authenticated:
+            folder = request.POST.get("folder")
+            foldername = request.POST.get("name")
             # Проверяем, указана ли папка
             if folder == "none":
-                # Если нет, значит удаляем из главной директории
+                # Если нет, значит удаляемый объект находится в главной директории
                 folder = "./media/files/" + request.user.username + "/"
             else:
-                # Если да, то удаляем из выбранной пользователем директории
+                # Если да, то значит удаляемый объект находится в выбранной пользователем директории
                 _folder = folder.split("`")
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            # Получаем абсолютный путь к удаляемому файлу
-            filepath = folder + filename
-            # Получаем размер файла
-            size = os.path.getsize(filepath)
+            # Получаем абсолютный путь к удаляемому объекту
+            filepath = folder + foldername
+            # Подготавливаем ответ
+            response = HttpResponse()
             # Получаем диск пользователя
             disk = Disk.objects.get(user__username=request.user.username)
-            # Вычитаем размер файла из занятого места на диске пользователя
-            disk.size -= size
-            # Сохраняем изменения
-            disk.save()
-            # Удаляем файл
-            os.remove(filepath)
-            # Перенаправляем пользователля обратно на страницу со списком файлов
-            return redirect("/mydisk")
-        else:
-            # Если нет, то перебрасываем его на страницу входа
-            return redirect("/accounts/login")
-
-
-class RemoveFolderView(View):
-    """Для удаления папок"""
-
-    def get(self, request, folder, foldername):
-        # Проверяем, авторизован ли пользователь
-        if request.user.is_authenticated:
-            # Проверяем, указана ли папка
-            if folder == "none":
-                # Если нет, значит удаляемая папка находится в главной директории
-                folder = "./media/files/" + request.user.username + "/"
+            # Узнаём тип удаляемого объекта
+            if os.path.isdir(filepath):
+                # Если удаляемый объект является папкой
+                # Удаляем папку
+                shutil.rmtree(filepath)
+                # Записываем статус успешного выполнения запроса в подготовленный ответ
+                response.status_code = 200
+                # Вычисляем и записываем новый объём занятого места
+                disk.size = get_size(f"./media/files/{request.user.username}")
+                disk.save()
+            elif os.path.isfile(filepath):
+                # Если удаляемый объект является файлом
+                try:
+                    model = PublicFile.objects.get(pathToFile=filepath)
+                    model.delete()
+                except:
+                    pass
+                # Удаляем файл
+                os.remove(filepath)
+                # Записываем статус успешного выполнения запроса в подготовленный ответ
+                response.status_code = 200
+                # Вычисляем и записываем новый объём занятого места
+                disk.size = get_size(f"./media/files/{request.user.username}")
+                disk.save()
             else:
-                # Если да, то значит удаляемая папка находится в выбранной пользователем директории
-                _folder = folder.split("`")
-                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            # Получаем абсолютный путь к удаляемой папке
-            filepath = folder + foldername
-            # Получаем размер папки
-            size_of_folder = get_size(filepath)
-            # Вычитаем его из диска пользователя
-            disk = Disk.objects.get(user__username=request.user.username)
-            disk.size -= size_of_folder
-            disk.save()
-            # Удаляем папку
-            shutil.rmtree(filepath)
-            # Перенаправляем пользователя обратно на страницу со списком файлов
-            return redirect("/mydisk")
+                # Если объект не является ни фалом, ни файлом, то записываем статус ошибки в подготовленный ответ
+                response.status_code = 405
+            # Отправляем ответ пользователю
+            return response
         else:
+            # Ну тут понятно уже
             return redirect("/accounts/login")
 
 
@@ -313,24 +325,32 @@ class CreateFolderView(View):
     """Чтобы пользователь мог создавать папки"""
 
     def post(self, request):
-        folder = request.POST.get("folder")
-        foldername = request.POST.get("folderName")
+        print(Fore.RED)
+        print("create-folder: " + request.user.username)
+        print(Style.RESET_ALL)
+        name = request.POST.get("name")
+        dir = request.POST.get("dir")
         # Проверяем, авторизован ли пользователь
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
-            if folder == "none":
+            if dir == "none":
                 # Если нет, значит создаём в главной директории
-                folder = "./media/files/" + request.user.username + "/"
+                dir = "./media/files/" + request.user.username + "/"
             else:
                 # Если да, то создаём в выбранной пользователем директории
-                _folder = folder.split("`")
-                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
+                _folder = dir.split("`")
+                dir = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к будущемей папке
-            path = folder + foldername
+            path = dir + name
             # Создаём папку
+            print(Fore.RED)
+            print(path)
+            print(Style.RESET_ALL)
             os.mkdir(path)
             # Перенаправляем пользователля обратно на страницу со списком файлов
-            return redirect("/mydisk")
+            response = HttpResponse()
+            response.status_code = 200
+            return response
         else:
             # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
@@ -359,7 +379,8 @@ class Preview(View):
                 text = file.read()
                 file.close()
                 # Перенаправляем пользователля на страницу с предпросмотром
-                return render(request, 'main/text_preview.html', {"text": text, "folder": folder, "filename": filename, "editable": True})
+                return render(request, 'main/text_preview.html',
+                              {"text": text, "folder": folder, "filename": filename, "editable": True})
             else:
                 # return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен",
                 #                                              "text": "Данный файл не поддерживает предварительный "
@@ -436,8 +457,10 @@ class DownloadPublicView(View):
 class CreatePublicFileView(View):
     """Создание публичного файла"""
 
-    def get(self, request, folder, filename):
+    def post(self, request):
         # Проверяем, авторизован ли пользователь
+        filename = request.POST.get("name")
+        folder = request.POST.get("folder")
         _folder = folder
         if request.user.is_authenticated:
             # Проверяем, указана ли папка
@@ -450,10 +473,29 @@ class CreatePublicFileView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к выбранному файлу
             filepath = folder + filename
-            test = PublicFile.objects.create(pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
-            test.save()
+            f = Fernet(request.user.password[34:])
+            file = open(filepath, "br")
+            encrypted_data = file.read()
+            decrypted_data = f.decrypt(encrypted_data)
+            file = open(filepath, "bw")
+            file.write(decrypted_data)
+            file.close()
+            del file
+            model = PublicFile.objects.create(pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
+            model.save()
             # Перенаправляем пользователя обратно на страницу со списком файлов
-            return redirect("/mydisk")
+            # response = HttpResponse(model.url)
+            # response.status_code = 200
+            # return response
+            return HttpResponse(model.url)
         else:
             # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
+
+# class TestView(View):
+#     def get(self, request):
+#         password = request.user.password
+#         # sha = hashlib.sha1(password.encode)
+#         # sha = sha.hexdigest()
+#         # print(sha)
+#         return HttpResponse(password)

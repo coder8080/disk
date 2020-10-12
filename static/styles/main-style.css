@@ -7,3 +7,10 @@
 p{
     text-indent: 40px;
 }
+
+body{
+    /*background-image: url("/static/images/back.jpg");*/
+    background-image: url("/static/images/back.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+}

@@ -8,7 +8,7 @@
 
 form{
     padding: 10px 40px 40px 40px;
-    background-color: aqua;
+    background-color: #24b7d1;
     border-radius: 15px;
 }
 
@@ -23,8 +23,8 @@ form{
     padding: 5px;
     width: 150px;
     border: none;
-    border-bottom: 1px solid gray;
-    background-color: aqua;
+    border-bottom: 1px solid black;
+    background-color: #24b7d1;
     z-index: 1;
 }
 

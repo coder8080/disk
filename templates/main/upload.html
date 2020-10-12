@@ -1,33 +1,5 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div id="hidden">
-        <h3>
-            <div id="menu-margin">
-                <div class="li" onclick="goToMain()">
-                    Главная
-                </div>
-                <div class="li" onclick="goToLogin()">
-                    Войти
-                </div>
-                <div class="li" onclick="goToReg()">
-                    Создать аккаунт
-                </div>
-                <div class="li" onclick="goToLich()">
-                    Личный кабинет
-                </div>
-                <div class="li" onclick="goToMyDisk()">
-                    Мой диск
-                </div>
-                <div class="li" onclick="goToOut()">
-                    Выйти
-                </div>
-            </div>
-            <a href="http://localhost/author" id="about">
-                Об авторе
-            </a>
-        </h3>
-    </div>
-    <div id="margin"></div>
     <center>
         <h2>
             Загрузить файл
@@ -40,58 +12,43 @@
                 {% csrf_token %}
                 <br><br>
                 <input type="hidden" name="dir" value="{{ dir }}">
-                <label id="inputFile">Выбрать файл<input type="file" name="file" id="input"
-                                                         onchange="inputChanged()"></label>
+                <label id="inputFile">Выбрать файлы<input type="file" name="file" id="input"
+                                                          onchange="inputChanged()" multiple></label>
                 <br>
                 <br>
                 <br>
-                <label id="nameOfFile">Файл не выбран</label>
+                <label id="nameOfFile">Файлы не выбраны</label>
                 <br><br>
-                <input type="submit" value="Загрузить">
-                {#                id="btnsubmit" onclick="sendForm()"#}
+                <input type="submit" value="Загрузить" id="btnsubmit">
             </center>
         </form>
-            </div>
-                <script>
-                /*function sendForm() {
-                    var sizeOfFile = document.getElementById("input").files[0].size;
-                    console.log(sizeOfFile);
-                    if (sizeOfFile + <% SIZEOFDIR %> < <% ALLSIZE %>) {
-                        var form = document.getElementById("form");
-                        form.submit();
-                    }
-                    else {
-                        alert("Недостаточно места на диске! Для загрузки файла необходимо приобрести лицензию.");
-                    }
-                }*/
+    </div>
+    <script>
+        /*function sendForm() {
+            var sizeOfFile = document.getElementById("input").files[0].size;
+            console.log(sizeOfFile);
+            if (sizeOfFile + <% SIZEOFDIR %> < <% ALLSIZE %>) {
+                var form = document.getElementById("form");
+                form.submit();
+            }
+            else {
+                alert("Недостаточно места на диске! Для загрузки файла необходимо приобрести лицензию.");
+            }
+        }*/
 
-                const inputChanged = () => {
-                    let input = document.getElementById("input");
-                    let test = input.files[0]
-                    let label = document.getElementById("nameOfFile");
-                    console.log("elements got");
-                    if (test != undefined) {
-                        console.log("yes");
-                        console.log(test);
-                        label.innerHTML = test.name;
-                    }
-                    else {
-                        console.log("no");
-                        label.value = "Файл не выбран";
-                    }
-                }
-            </script>
-            <style>
-                #inputFile {
-                    padding: 20px;
-                    border-radius: 15px;
-                    background-color: #f0f0f0;
-                    color: black;
-                    cursor: pointer;
-                }
+        const inputChanged = () => {
+            let input = document.getElementById("input");
+            let label = document.getElementById("nameOfFile");
+            let text = "";
+            for (let i = 0; i < input.files.length; i++) {
+                console.log(input.files[i].name)
+                text += input.files[i].name + "<br>"
+            }
+            console.log(text);
+            label.innerHTML = text;
+        }
+    </script>
+    <style>
 
-                #input {
-                    display: none;
-                }
-            </style>
+    </style>
 {% endblock content %}

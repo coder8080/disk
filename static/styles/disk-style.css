@@ -1,0 +1,58 @@
+#fileBox {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.fileblock {
+    padding-left: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.fileblock a {
+    margin-left: 10px;
+}
+
+#close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.parent {
+    display: none;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.action-form {
+    position: relative;
+}
+
+#inputFile {
+    padding: 20px;
+    border-radius: 15px;
+    background-color: #f0f0f0;
+    color: black;
+    cursor: pointer;
+}
+
+#input-file {
+    display: none;
+}
