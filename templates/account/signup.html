@@ -9,14 +9,14 @@
         </h2>
     </center>
     <br>
-    {% if form.errors %}
-        <center>
-            <p>
-                Не удалось зарегестрировать пользователя. Либо пользователь с таким логином уже существует, либо
-                введённые вами пароли не совпадают.
-            </p>
-        </center>
-    {% endif %}
+    {#    {% if form.errors %}#}
+    {#        <center>#}
+    {#            <p>#}
+    {#                Не удалось зарегестрировать пользователя. Либо пользователь с таким логином уже существует, либо#}
+    {#                введённые вами пароли не совпадают.#}
+    {#            </p>#}
+    {#        </center>#}
+    {#    {% endif %}#}
     <div id="form-margin">
         <form action="{% url 'account_signup' %}" method="POST">
             {% csrf_token %}
@@ -32,12 +32,18 @@
                     <span class="bar"></span>
                 </div>
                 <div class="g">
-                    <input type="password" class="text  " name="password2" autocomplete="off" id="password2_id" required>
+                    <input type="password" class="text" name="password2" autocomplete="off" id="password2_id" required>
                     <label class="placeholder" for="password2_id">Повторите</label>
                     <span class="bar"></span>
                 </div>
                 <br>
                 <input type="submit" id="btnsubmit">
+                <br>
+                {% if form.errors %}
+                    {{ form.errors.username }}
+                    {{ form.errors.password1 }}
+                    {{ form.errors.password2 }} 
+                {% endif %}
                 <h3>
                     Уже есть аккаунт? <br><br><a href="{% url 'login' %}">Войдите</a>.
                 </h3>
