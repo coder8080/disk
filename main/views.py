@@ -51,20 +51,6 @@ class AuthorView(View):
 
 
 class UploadView(View):
-    """Страница для загрузки файлов"""
-
-    def get(self, request):
-        # Проверяем, авторизован ли пользователь
-        if request.user.is_authenticated:
-            # Получаем папку, в которую пользователь зочет загрузить файл
-            dir = request.GET.get("dir")
-            # Хз зачем я написал этот if но без него не работает
-            if dir == "":
-                dir = "none"
-            return render(request, 'main/upload.html', {"dir": dir})
-        else:
-            return redirect("/accounts/login")
-
     """Загрузка файла"""
 
     def post(self, request):
@@ -116,12 +102,9 @@ class UploadView(View):
                     print(Fore.RED)
                     print(f"У пользователя {request.user.username} закончилось место на диске")
                     print(Style.RESET_ALL)
-                    return render(request, 'main/message.html', {
-                        "label": "Недостаточно места",
-                        "text": "У вас недостаточно места на диске, чтобы загрузить этот файл. Попробуйте удалить с диска "
-                                "файлы, которыми вы уже не пользуетесь. Если вам нужно больше места, то свяжитесь с "
-                                "администратором сайта. Скоро будут добавлены промокоды на увеличение места.",
-                        "page_name": "главную", "page_url": "/"})
+                    response = HttpResponse()
+                    response.status_code = 404
+                    return response
             # Перебрасываем пользователя на страницу с его диском
             return redirect("/mydisk")
         else:
@@ -137,9 +120,14 @@ class PrivateOfficeView(View):
         if request.user.is_authenticated:
             # Получаем диск пользователя
             disk = Disk.objects.get(user__username=request.user.username)
+            pct = ((disk.size / 1000000) / (disk.allSize / 1000000)) * 100
+            print(disk.size / 1000000)
+            print(disk.allSize / 1000000)
             # Отправляем шаблон с данными пользователю
-            return render(request, 'main/main.html', {"size": round((disk.allSize - disk.size) / 1000000),
-                                                      "allSize": round(disk.allSize / 1000000)})
+            return render(request, 'main/main.html', {"busy": round(disk.size / 1000000),
+                                                      "all": round(disk.allSize / 1000000),
+                                                      "free": round((disk.allSize - disk.size) / 1000000),
+                                                      "pct": round(pct)})
         else:
             # Если не авторизован, то перенаправляем на страницу входа
             return redirect("/accounts/login")
@@ -163,10 +151,8 @@ class DiskView(View):
                 dir = "/" + "/".join(folder)
 
             # Объявляемd переменные для анализа директории
-            files_preview_linked = []
-            files_preview_unlinked = []
-            files_download_linked = []
-            files_download_unlinked = []
+            files_linked = []
+            files_unlinked = []
             folders = []
             folder = []
             # Сканируем директорию
@@ -185,7 +171,6 @@ class DiskView(View):
                 # Сортируем файлы
                 for file in files:
                     # Получаем расширение файла
-                    ext = os.path.splitext("./media/files/" + request.user.username + dir + file)[1]
                     try:
                         test = PublicFile.objects.get(
                             pathToFile="./media/files/" + request.user.username + dir + "/" + file)
@@ -193,16 +178,11 @@ class DiskView(View):
                     except:
                         linked = False
                     # Проверяем расширение файла и то, в публичном ли он доступе
-                    if ext == ".txt" and linked is True:
+                    if linked is True:
                         work = [file, test.url]
-                        files_preview_linked += [work]
-                    elif ext == ".txt" and linked is False:
-                        files_preview_unlinked += [file]
-                    elif ext != ".txt" and linked is True:
-                        work = [file, test.url]
-                        files_download_linked += [work]
-                    elif ext != ".txt" and linked is False:
-                        files_download_unlinked += [file]
+                        files_linked += [work]
+                    elif linked is False:
+                        files_unlinked += [file]
                     else:
                         print(Fore.RED)
                         print("ОШИБКА")
@@ -211,10 +191,8 @@ class DiskView(View):
                 pass
             # Возвращаем пользователю отрендеренный шаблон
             return render(request, 'main/mydisk.html',
-                          {"files_download_linked": files_download_linked,
-                           "files_download_unlinked": files_download_unlinked,
-                           "files_preview_linked": files_preview_linked,
-                           "files_preview_unlinked": files_preview_unlinked,
+                          {"files_linked": files_linked,
+                           "files_unlinked": files_unlinked,
                            "folders": folders,
                            "dir": _dir})
         else:
@@ -310,6 +288,7 @@ class RemoveView(View):
                 response.status_code = 200
                 # Вычисляем и записываем новый объём занятого места
                 disk.size = get_size(f"./media/files/{request.user.username}")
+                print(disk.size)
                 disk.save()
             else:
                 # Если объект не является ни фалом, ни файлом, то записываем статус ошибки в подготовленный ответ
@@ -356,43 +335,6 @@ class CreateFolderView(View):
             return redirect("/accounts/login")
 
 
-class Preview(View):
-    """Предпросмотр файлов"""
-
-    def get(self, request, folder, filename):
-        _folder = folder
-        # Проверяем, авторизован ли пользователь
-        if request.user.is_authenticated:
-            # Проверяем, указана ли папка
-            if folder == "none":
-                # Метод аналогичен прошлым вьюшкам, смотрите там. Мне лень нормально писать комментарии
-                folder = "./media/files/" + request.user.username + "/"
-            else:
-                _folder = folder.split("`")
-                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            filepath = folder + filename
-            # Получаем разрешение файла
-            file_ext = os.path.splitext(filepath)[1]
-            if file_ext == ".txt":
-                # Если оно .txt, то получаем содержимое файла
-                file = open(filepath)
-                text = file.read()
-                file.close()
-                # Перенаправляем пользователля на страницу с предпросмотром
-                return render(request, 'main/text_preview.html',
-                              {"text": text, "folder": folder, "filename": filename, "editable": True})
-            else:
-                # return render(request, "main/message.html", {"label": "Предвартельный просмотр не возможен",
-                #                                              "text": "Данный файл не поддерживает предварительный "
-                #                                                      "просмотр.", "page_name": "страницу моего диска",
-                #                                              "page_url": "/mydisk"})
-                return render(request, 'main/no_preview.html',
-                              {"path": f"download/{_folder}/{filename}", "filename": filename})
-        else:
-            # Если оно .txt
-            return redirect("/accounts/login")
-
-
 class ReWriteView(View):
     """Запись изменений, внесённых пользователем в текстовый файл на странице предпросмотра"""
 
@@ -421,20 +363,10 @@ class PublicFileView(View):
     def get(self, request, url):
         # Получаем общедоступный объект из базы данных
         object_file = PublicFile.objects.get(url=url)
-        # Получаем расширение файла
-        ext = os.path.splitext(object_file.pathToFile)[1]
-        if ext == ".txt":
-            # Если предварительный просмотр возможен, то организуем его
-            file = open(object_file.pathToFile, "r")
-            data = file.read()
-            file.close()
-            del file
-            return render(request, "main/text_preview.html", {"text": data, "editable": False})
-        else:
-            # Если нет, то отправляем пользователя на страницу с соответствующим сообщением
-            return render(request, 'main/no_preview.html',
-                          {"path": f"/download-public/{object_file.url}",
-                           "filename": os.path.basename(object_file.pathToFile)})
+        # Отправляем пользователя на страницу с соответствующим сообщением
+        return render(request, 'main/public_file.html',
+                      {"path": f"/download-public/{object_file.url}",
+                       "filename": os.path.basename(object_file.pathToFile)})
 
 
 class DownloadPublicView(View):

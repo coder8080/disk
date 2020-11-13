@@ -1,53 +1,30 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Signup{% endblock title %}
+{% block title %}
+    Зарегестрироваться
+{% endblock title %}
+
+{% block extra-styles %}
+    <link rel="stylesheet" href="{% static 'styles/form-style.css' %}">
+{% endblock extra-styles %}
 
 {% block content %}
-    <center>
-        <h2>
-            Зарегестриорваться
-        </h2>
-    </center>
-    <br>
-    {#    {% if form.errors %}#}
-    {#        <center>#}
-    {#            <p>#}
-    {#                Не удалось зарегестрировать пользователя. Либо пользователь с таким логином уже существует, либо#}
-    {#                введённые вами пароли не совпадают.#}
-    {#            </p>#}
-    {#        </center>#}
-    {#    {% endif %}#}
-    <div id="form-margin">
-        <form action="{% url 'account_signup' %}" method="POST">
-            {% csrf_token %}
-            <center>
-                <div class="g">
-                    <input type="text" class="text" name="username" autocomplete="off" id="login_id" required>
-                    <label class="placeholder" for="login_id">Логин</label>
-                    <span class="bar"></span>
-                </div>
-                <div class="g">
-                    <input type="password" class="text" name="password1" id="password1_id" required>
-                    <label class="placeholder" for="password1_id">Пароль</label>
-                    <span class="bar"></span>
-                </div>
-                <div class="g">
-                    <input type="password" class="text" name="password2" autocomplete="off" id="password2_id" required>
-                    <label class="placeholder" for="password2_id">Повторите</label>
-                    <span class="bar"></span>
-                </div>
-                <br>
-                <input type="submit" id="btnsubmit">
-                <br>
-                {% if form.errors %}
-                    {{ form.errors.username }}
-                    {{ form.errors.password1 }}
-                    {{ form.errors.password2 }} 
-                {% endif %}
-                <h3>
-                    Уже есть аккаунт? <br><br><a href="{% url 'login' %}">Войдите</a>.
-                </h3>
-            </center>
-        </form>
-    </div>
-{% endblock %}
+    <form class="form text-center" method="post" action="/accounts/signup">
+        <img class="mb-4" src="{% static 'images/disk.png' %}" alt="" width="72" height="72">
+        <h1 class="h3 mb-3 font-weight-normal">Зарегестрируйтесь</h1>
+        <label for="inputEmail" class="sr-only">Логин</label>
+        <input type="email" id="inputEmail" class="form-control" placeholder="Логин" required autofocus>
+        <label for="inputPassword" class="sr-only">Пароль</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
+        <label for="inputRepeat" class="sr-only">Повторите пароль</label>
+        <input type="password" id="inputRepeat" class="form-control" placeholder="Повторите пароль" required>
+        <!--    <div class="checkbox mb-3">-->
+        <!--        <label>-->
+        <!--            <input type="checkbox" value="remember-me"> Remember me-->
+        <!--        </label>-->
+        <!--    </div>-->
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегестрироваться</button>
+        <p class="mt-5 mb-3 text-muted">&copy; 2017-2020</p>
+    </form>
+{% endblock content %}

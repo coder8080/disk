@@ -1,0 +1,42 @@
+{% load static %}
+<nav class="navbar navbar-expand-md navbar-light fixed-top bg-light">
+    <a class="navbar-brand" href="/">
+        <img src="{% static 'images/disk.png' %}" width="30" height="30" class="d-inline-block align-top"
+             loading="lazy">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% if page == 'main' %}active{% endif %}">
+                <a class="nav-link" href="/">Главная</a>
+            </li>
+            <li class="nav-item {% if page == 'author' %}active{% endif %}">
+                <a class="nav-link" href="/author">Об авторе</a>
+            </li>
+            <!--            <li class="nav-item dropdown">-->
+            <!--                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"-->
+            <!--                   aria-expanded="false">Аккаунт</a>-->
+            <!--                <div class="dropdown-menu" aria-labelledby="dropdown01">-->
+            <!--                    <a class="dropdown-item" href="#">Войти</a>-->
+            <!--                    <a class="dropdown-item" href="#">Зарегестрироваться</a>-->
+            <!--                    <a class="dropdown-item" href="#">Личный кабинет</a>-->
+            <!--                </div>-->
+            <!--            </li>-->
+            <li class="nav-item {% if page == 'mydisk' %}active{% endif %}">
+                <a href="/mydisk" class="nav-link">
+                    Мой диск
+                </a>
+            </li>
+            <li class="nav-item {% if page == 'private_office' %}active{% endif %}">
+                <a href="/main" class="nav-link">
+                    Личный кабинет
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="margin" style="height: 70px"></div>

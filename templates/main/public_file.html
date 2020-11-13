@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load main_tag %}
+{% block title %}
+    Публичный файл
+{% endblock title %}
+
+{% block content %}
+    {% get_header 'public_file' %}
+    <div class="container text-center">
+        <p class="h1">
+            Публичный файл
+        </p>
+        <p class="h4">
+            Нажав на кнопку ниже вы можете получить файл "{{ filename }}".
+        </p>
+    <a href="{{ path }}" download="{{ filename }}" class="btn btn-outline-success">скачать файл</a>
+    </div>
+{% endblock content %}

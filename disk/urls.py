@@ -20,7 +20,7 @@ urlpatterns = [
     # Url админки
     path('admin/', admin.site.urls),
     # Url отвечающий за аккаунты
-    path('accounts/', include("django.contrib.auth.urls")),
+    # path('accounts/', include("django.contrib.auth.urls")),
     path('accounts/', include('allauth.urls')),
     # Url моего приложения
     path('', include("main.urls"))

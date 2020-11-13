@@ -1,16 +1,4 @@
-/* Главный стиль */
-
-* {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
-
-p{
-    text-indent: 40px;
-}
-
-body{
-    /*background-image: url("/static/images/back.jpg");*/
-    background-image: url("/static/images/back.jpg");
-    background-size: cover;
-    background-attachment: fixed;
+html,
+body {
+    padding-top: 3.5rem;
 }

@@ -1,189 +1,250 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load main_tag %}
 
 {% block title %}
-    Диск пользователя {{ user.username }} | Disk
+    {{ user.username }}
 {% endblock title %}
 
 {% block content %}
+    {% get_header 'mydisk' %}
     <link rel="stylesheet" href="{% static 'styles/disk-style.css' %}">
     <script src="{% static 'js/buffer-script.js' %}"></script>
     <script src="{% static 'js/disk-script.js' %}"></script>
-    <center>
+    <div class="container text-center">
         <h2>
             Диск пользователя {{ user.username }}
         </h2>
-    </center>
-    <h2>
-        <p>
-            Ваши файлы:
-        </p>
-    </h2>
+    </div>
+    <div class="container text-center" style="margin-top: 10px">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#uploadFilesModal">
+                Загрузить файлы
+            </button>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#createFolderModal">
+                Создать папку
+            </button>
+            <button type="button" class="btn btn-info" onclick="document.location.replace('/main')">Личный
+                кабинет
+            </button>
+            {% if dir != "none" %}
+                <button type="button" class="btn btn-secondary" onclick="document.location.replace('/mydisk/none')">В
+                    главную директорию
+                </button>
+            {% endif %}
+        </div>
+    </div>
     <br>
-    <div id="fileBox">
+    <ul class="list-group" id="files-ul">
         <div id="folders">
             {% for folder in folders %}
-                <div class="fileblock" id="---folder-div_{{ folder }}">
-                    <img src="{% static 'images/folder.png' %}" alt="Папка" width="60px" height="60px">
-                    <h2>
-                        {{ folder }}
-                    </h2>
-                    <a href="/mydisk{% if dir != "none" %}/{{ dir }}`{% else %}/{% endif %}{{ folder }}"
-                       title="открыть">
-                        <img src="{% static '/images/open.png' %}" alt="открыть" width="45px" height="45px">
-                    </a>
-                    <a onclick="remove('{{ dir }}', '{{ folder }}', 'delete-folder')" title="удалить">
-                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
-                    </a>
-                </div>
+                <li class="list-group-item" id="---folder-div_{{ folder }}">
+                    <div class="fileblock">
+                        <img src="{% static 'images/folder.png' %}" alt="Папка" width="60px" height="60px">
+                        <h4>
+                            {{ folder }}
+                        </h4>
+                        <a href="/mydisk{% if dir != "none" %}/{{ dir }}`{% else %}/{% endif %}{{ folder }}"
+                           title="открыть">
+                            <img src="{% static '/images/open.png' %}" alt="открыть" width="45px" height="45px">
+                        </a>
+                        <a onclick="remove('{{ dir }}', '{{ folder }}', 'delete-folder')" title="удалить">
+                            <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                        </a>
+                    </div>
+                </li>
             {% endfor %}
         </div>
 
-        {% for file in files_download_linked %}
-            <div class="fileblock" id="---file-div_{{ file.0 }}">
-                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
-                <h2>
-                    {{ file.0 }}
-                </h2>
-                <a href="/download/{{ dir }}/{{ file.0 }}" title="загрузить" download>
-                    <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
-                </a>
-                <a onclick="remove('{{ dir }}', '{{ file.0 }}', 'delete-file')" title="удалить">
-                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
-                </a>
-                <a onclick="copy('{{ file.1 }}')" style="cursor: pointer" title="копировать ссылку">
-                    <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px" height="40px">
-                </a>
-            </div>
+        {% for file in files_linked %}
+            <li class="list-group-item" id="---file-div_{{ file.0 }}">
+                <div class="fileblock">
+                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
+                    <h4>
+                        {{ file.0 }}
+                    </h4>
+                    <a href="/download/{{ dir }}/{{ file.0 }}" title="загрузить" download>
+                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
+                    </a>
+                    <a onclick="remove('{{ dir }}', '{{ file.0 }}', 'delete-file')" title="удалить">
+                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                    </a>
+                    <a onclick="copy('{{ file.1 }}')" style="cursor: pointer" title="копировать ссылку">
+                        <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px"
+                             height="40px">
+                    </a>
+                </div>
+            </li>
         {% endfor %}
-        {% for file in files_download_unlinked %}
-            <div class="fileblock" id="---file-div_{{ file }}">
-                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
-                <h2>
-                    {{ file }}
-                </h2>
-                <a href="/download/{{ dir }}/{{ file }}" title="скачать" download>
-                    <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
-                </a>
-                <a title="удалить" onclick="remove('{{ dir }}', '{{ file }}', 'delete-file')">
-                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
-                </a>
-                <a onclick="makePublic('{{ file }}', '{{ dir }}')" title="сделать общедоступным" id="---make-public-a_{{ file }}">
-                    <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px"
-                         height="40px">
-                </a>
-            </div>
+        {% for file in files_unlinked %}
+            <li class="list-group-item" id="---file-div_{{ file }}">
+                <div class="fileblock">
+                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
+                    <h4>
+                        {{ file }}
+                    </h4>
+                    <a href="/download/{{ dir }}/{{ file }}" title="скачать" download>
+                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
+                    </a>
+                    <a title="удалить" onclick="remove('{{ dir }}', '{{ file }}', 'delete-file')">
+                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
+                    </a>
+                    <a onclick="makePublic('{{ file }}', '{{ dir }}')" title="сделать общедоступным"
+                       id="---make-public-a_{{ file }}">
+                        <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px"
+                             height="40px">
+                    </a>
+                </div>
+            </li>
         {% endfor %}
-        {% for file in files_preview_linked %}
-            <div class="fileblock" id="---file-div_{{ file.0 }}">
-                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
-                <h2>
-                    {{ file.0 }}
-                </h2>
-                <a href="/download/{{ dir }}/{{ file.0 }}"
-                   title="скачать" download>
-                    <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
-                </a>
-                <a onclick="remove('{{ dir }}', '{{ file.0 }}', 'delete-file')" title="удалить">
-                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
-                </a>
-                <a href="/text/{{ dir }}/{{ file.0 }}"
-                   title="предпросмотр">
-                    <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">
-                </a>
-                <a title="копировать ссылку на файл" onclick="copy('{{ file.1 }}')"
-                   style="cursor: pointer">
-                    <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px" height="40px">
-                </a>
-            </div>
-        {% endfor %}
-        {% for file in files_preview_unlinked %}
-            <div class="fileblock" id="---file-div_{{ file }}">
-                <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
-                <h2>
-                    {{ file }}
-                </h2>
-                <a href="/download/{{ dir }}/{{ file.0 }}"
-                   title="скачать" download>
-                    <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">
-                </a>
-                <a onclick="remove('{{ dir }}', '{{ file }}', 'delete-file')" title="удалить">
-                    <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">
-                </a>
-                <a href="/text/{{ dir }}/{{ file }}"
-                   title="предпросмотр">
-                    <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">
-                </a>
-                <a onclick="makePublic('{{ file }}', '{{ dir }}')" id="---make-public-a_{{ file }}">
-                    <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px"
-                         height="40px">
-                </a>
-            </div>
-        {% endfor %}
-    </div>
-    <br>
-    <h2>
-        <div class="block" onclick="showUploadForm()">
-            <div class="content">
-                Загрузить файлы
+{#        {% for file in files_preview_linked %}#}
+{#            <li class="list-group-item" id="---file-div_{{ file.0 }}">#}
+{#                <div class="fileblock">#}
+{#                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">#}
+{#                    <h4>#}
+{#                        {{ file.0 }}#}
+{#                    </h4>#}
+{#                    <a href="/download/{{ dir }}/{{ file.0 }}"#}
+{#                       title="скачать" download>#}
+{#                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">#}
+{#                    </a>#}
+{#                    <a onclick="remove('{{ dir }}', '{{ file.0 }}', 'delete-file')" title="удалить">#}
+{#                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">#}
+{#                    </a>#}
+{#                    <a href="/text/{{ dir }}/{{ file.0 }}"#}
+{#                       title="предпросмотр">#}
+{#                        <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">#}
+{#                    </a>#}
+{#                    <a title="копировать ссылку на файл" onclick="copy('{{ file.1 }}')"#}
+{#                       style="cursor: pointer">#}
+{#                        <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px"#}
+{#                             height="40px">#}
+{#                    </a>#}
+{#                </div>#}
+{#            </li>#}
+{#        {% endfor %}#}
+{#        {% for file in files_preview_unlinked %}#}
+{#            <li class="list-group-item" id="---file-div_{{ file }}">#}
+{#                <div class="fileblock">#}
+{#                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">#}
+{#                    <h4>#}
+{#                        {{ file }}#}
+{#                    </h4>#}
+{#                    <a href="/download/{{ dir }}/{{ file.0 }}"#}
+{#                       title="скачать" download>#}
+{#                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">#}
+{#                    </a>#}
+{#                    <a onclick="remove('{{ dir }}', '{{ file }}', 'delete-file')" title="удалить">#}
+{#                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">#}
+{#                    </a>#}
+{#                    <a href="/text/{{ dir }}/{{ file }}"#}
+{#                       title="предпросмотр">#}
+{#                        <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">#}
+{#                    </a>#}
+{#                    <a onclick="makePublic('{{ file }}', '{{ dir }}')" id="---make-public-a_{{ file }}">#}
+{#                        <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px"#}
+{#                             height="40px">#}
+{#                    </a>#}
+{#                </div>#}
+{#            </li>#}
+{#        {% endfor %}#}
+    </ul>
+    <div class="modal fade" id="uploadFilesModal" tabindex="-1" aria-labelledby="uploadFilesModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {#                     id="exampleModalLabel"#}
+                    <h5 class="modal-title" id="uploadFilesModalLabel">Загрузка файлов</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <form class="action-form" id="upload-file-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="dir" value="{{ dir }}">
+                        <label id="inputFile">
+                            Выбрать файлы
+                            <input type="file" name="files" id="input-file"
+                                   onchange="inputChanged()" multiple></label>
+                        <br>
+                        <label id="nameOfFile">Файлы не выбраны</label>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" onclick="uploadFiles()">Загрузить файлы</button>
+                </div>
             </div>
         </div>
-        <div class="block" onclick="createDir()">
-            <div class="content">
-                Создать папку
+    </div>
+    <div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true"
+         aria-labelledby="uploadFilesModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createFolderModalLabel">
+                        Создание папки
+                    </h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <form class="action-form" id="new-folder-form">
+                        <center>
+                            <input type="hidden" value="{{ dir }}" id="dir">
+                            {#                            <div class="g">#}
+                            {#                                <input type="text" class="text" name="folderName" id="folderName" autocomplete="off"#}
+                            {#                                       required>#}
+                            {#                                <label class="placeholder" for="folderName">Имя папки</label>#}
+                            {#                                <span class="bar"></span>#}
+                            {#                            </div>#}
+                            <input type="text" name="login" id="folderName" class="form-control" placeholder="Название"
+                                   autocomplete="off" required>
+                            {#                            <input type="submit" id="btnsubmit" value="Создать">#}
+                        </center>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button class="btn btn-primary" onclick="createFolder()">Создать папку</button>
+                </div>
             </div>
         </div>
-        <a href="/main">
-            <div class="block">
-                <div class="content">
-                    Личный кабинет
-                </div>
-            </div>
-        </a>
-        {% if dir != "none" %}
-            <a href="/mydisk/none">
-                <div class="block">
-                    <div class="content">
-                        В главную директорию
-                    </div>
-                </div>
-            </a>
-        {% endif %}
-    </h2>
-    <div class="parent" id="parent-create-folder">
-        <form class="action-form" id="new-folder-form">
-            <center>
-                <img src="{% static '/images/1.png' %}" alt="закрыть" id="close" onclick="hide()">
-                <input type="hidden" value="{{ dir }}" id="dir">
-                <div class="g">
-                    <input type="text" class="text" name="folderName" id="folderName" autocomplete="off" required>
-                    <label class="placeholder" for="folderName">Имя папки</label>
-                    <span class="bar"></span>
-                </div>
-                <br>
-                <input type="submit" id="btnsubmit" value="Создать">
-            </center>
-        </form>
     </div>
-    <div class="parent" id="parent-upload-files">
-        <form class="action-form" id="upload-file-form" enctype="multipart/form-data">
-            <center>
-                <img src="{% static '/images/1.png' %}" alt="закрыть" id="close" onclick="hide()">
-                <br><br>
-                {% csrf_token %}
-                <input type="hidden" name="dir" value="{{ dir }}">
-                <label id="inputFile">Выбрать файлы<input type="file" name="files" id="input-file"
-                                                          onchange="inputChanged()" multiple></label>
-                <br>
-                <br>
-                <br>
-                <label id="nameOfFile">Файлы не выбраны</label>
-                <br><br>
-                <input type="submit" value="Загрузить" id="btnsubmit">
-            </center>
-        </form>
-    </div>
-    <script>
-        initForms()
-    </script>
+    {#    <div class="parent" id="parent-create-folder">#}
+    {#        <form class="action-form" id="new-folder-form">#}
+    {#            <center>#}
+    {#                <img src="{% static '/images/1.png' %}" alt="закрыть" id="close" onclick="hide()">#}
+    {#                <input type="hidden" value="{{ dir }}" id="dir">#}
+    {#                <div class="g">#}
+    {#                    <input type="text" class="text" name="folderName" id="folderName" autocomplete="off" required>#}
+    {#                    <label class="placeholder" for="folderName">Имя папки</label>#}
+    {#                    <span class="bar"></span>#}
+    {#                </div>#}
+    {#                <br>#}
+    {#                <input type="submit" id="btnsubmit" value="Создать">#}
+    {#            </center>#}
+    {#        </form>#}
+    {#    </div>#}
+    {#    <div class="parent" id="parent-upload-files">#}
+    {#        <form class="action-form" id="upload-file-form" enctype="multipart/form-data">#}
+    {#            <center>#}
+    {#                <img src="{% static '/images/1.png' %}" alt="закрыть" id="close" onclick="hide()">#}
+    {#                <br><br>#}
+    {#                {% csrf_token %}#}
+    {#                <input type="hidden" name="dir" value="{{ dir }}">#}
+    {#                <label id="inputFile">Выбрать файлы<input type="file" name="files" id="input-file"#}
+    {#                                                          onchange="inputChanged()" multiple></label>#}
+    {#                <br>#}
+    {#                <br>#}
+    {#                <br>#}
+    {#                <label id="nameOfFile">Файлы не выбраны</label>#}
+    {#                <br><br>#}
+    {#                <input type="submit" value="Загрузить" id="btnsubmit">#}
+    {#            </center>#}
+    {#        </form>#}
+    {#    </div>#}
 {% endblock content %}

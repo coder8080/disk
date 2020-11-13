@@ -1,52 +1,39 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block title %}
     Войти
 {% endblock title %}
 
+{% block extra-styles %}
+    <link rel="stylesheet" href="{% static 'styles/form-style.css' %}">
+{% endblock extra-styles %}
+
 {% block content %}
-    <center>
-        <h2>
-            Войти
-        </h2>
-    </center>
-    <br>
-    {% if form.errors %}
-        <center>
-            <p>
-                Пожалуйста, введите корректные логин и пароль
-            </p>
-        </center>
-    {% endif %}
-    {% if user.is_authenticated %}
-        <center>
-            <p>
-                Вы уже вошли ранее. <a href="/mydisk">Перейти</a> в раздел "мой диск"
-            </p>
-        </center>
-    {% endif %}
-    <div id="form-margin">
-        <form action="{% url 'login' %}" method="POST">
-            {% csrf_token %}
-            <center>
-                <div class="g">
-                    <input type="text" class="text" name="username" autocomplete="off" id="input1" required>
-                    <label class="placeholder" for="input1">Логин</label>
-                    <span class="bar"></span>
-                </div>
-                <div class="g">
-                    <input type="text" class="text" name="password" id="input2" required>
-                    <label class="placeholder" for="input2">Пароль</label>
-                    <span class="bar"></span>
-                </div>
-                <br>
-                <input type="submit" id="btnsubmit">
-                <h3>
-                    Ещё нет аккаунта? <br><br><a href="http://localhost/registration">Зарегестрируйтесь</a>.
-                </h3>
-            </center>
-        </form>
-    </div>
+    <form class="form text-center" method="post" action="/accounts/login/">
+        <img class="mb-4" src="{% static 'images/disk.png' %}" alt="" width="72" height="72">
+        <h1 class="h3 mb-3 font-weight-normal">Войдите</h1>
+        <label for="inputEmail" class="sr-only">Логин</label>
+        <input type="text" name="login" id="inputLogin" class="form-control" placeholder="Логин" autocomplete="off" required autofocus>
+        {{ form.errors.login }}
+        <label for="inputPassword" class="sr-only">Пароль</label>
+        <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
+        {% if form.errors %}
+            {% if not form.errors.password %}
+                {% if not form.errors.login %}
+                    <h6 class="h6 mb-3 font-weight-normal"> Неправильно введены пароль и/или имя пользователя.</h6>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        {% csrf_token %}
+        <!--    <div class="checkbox mb-3">-->
+        <!--        <label>-->
+        <!--            <input type="checkbox" value="remember-me"> Remember me-->
+        <!--        </label>-->
+        <!--    </div>-->
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+        <br>
+        <h6 class="h6 mb-3 font-weight-normal">Ещё нет аккаунта? <a href="">Зарегестрироваться</a>.</h6>
+        <p class="mt-5 mb-3 text-muted">&copy; 2017-2020</p>
+    </form>
 {% endblock content %}

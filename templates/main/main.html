@@ -1,45 +1,38 @@
 {% extends 'base.html' %}
-
+{% load main_tag %}
 {% block title %}
-    {{ user.username }} | disk
+    {{ user.username }}
 {% endblock title %}
 
 {% block content %}
-    <center>
+    {% get_header 'private_office' %}
+    <div class="container text-center">
         <h2>
             Личный кабинет пользователя {{ user.username }}
         </h2>
-    </center>
-    <br>
-    <div id="box">
-        <div class="small">
-            <div class="block">
-                <div class="content">
-                    <h2>
-                        <p>
-                            У вас осталось места: {{ size }}мб из {{ allSize }}мб
-                        </p>
-                        <p>
-                            Приобрести больше места
-                        </p>
-                    </h2>
+    </div>
+    <div class="container" style="margin-top: 70px">
+        <div class="row">
+            <div class="col-md text-center">
+                <p>
+                    Занято: {{ busy }} мб
+                </p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{ pct }}%"
+                         aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
+                <br>
+                <p>
+                    Свободно: {{ free }} мб
+                </p>
+                <p>
+                    Всего: {{ all }} мб
+                </p>
             </div>
-        </div>
-        <div class="small">
-            <div class="block">
-                <div class="content" onclick="goToMyDisk()">
-                    <h2>
-                        Мой диск
-                    </h2>
-                </div>
-            </div>
-            <div class="block">
-                <div class="content" onclick="goToOut()">
-                    <h2>
-                        Выйти
-                    </h2>
-                </div>
+            <div class="col-md text-center">
+                <button class="btn btn-outline-danger" onclick="document.location.replace('/accounts/logout')">
+                    Выйти
+                </button>
             </div>
         </div>
     </div>

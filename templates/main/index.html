@@ -1,37 +1,72 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Disk{% endblock title %}
+{% load main_tag %}
+{% block title %}Главная{% endblock title %}
 
 {% block content %}
-    <div id="box">
-        <div class="small">
-            <div class="block">
-                <div class="content">
-                    <h2>
-                        <p>
-                            Disk - мой последний проект. С его помощью можно хранить файлы на сервере. Я до максимума (в
-                            моём
-                            понимании) прокачал безопасность. Так что пользуйтесь, мои посетители!
-                        </p>
-                    </h2>
-                </div>
+    <main role="main">
+        {% get_header 'main' %}
+        <div class="jumbotron" style="background: url('/static/images/back.jpg') fixed; background-size: cover">
+            <div class="container">
+                <h1 class="display-3">Проект "Disk"</h1>
+                <p>
+                    Disk - система облачного хранения файлов
+                </p>
+                <p>
+                    <a class="btn btn-success btn-lg" href="#" role="button">
+                        Узнать больше &raquo;
+                    </a>
+                </p>
             </div>
         </div>
-        <div class="small">
-            <div class="block">
-                <div class="content" onclick="goToMyDisk()">
-                    <h2>
-                        Мой диск
-                    </h2>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h2>Простота использования</h2>
+                    <p>
+                        Я пытался сделать сайт максимально понятным для неподготовленного пользователя, и, надеюсь, у
+                        меня
+                        получилось
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h2>Безопасность</h2>
+                    <p>
+                        Пользоваться сайтом безопасно. Как только вы загружаете файл на сервер, программа шифрует его.
+                        Таким
+                        образом, даже если сервер взломают, ваши файлы будут в безопасности.
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h2>Доступность</h2>
+                    <p>
+                        Мой проект использует лицензию MIT и хранится в открытом доступе на github. Если вы программист,
+                        то
+                        вы можете с лёгкостью менять мой сайт а так же опубликовать его у себя на сервере. Так же вы
+                        можете
+                        посмотреть код, если сомневаетесь в безопасности ресурса.
+                    </p>
                 </div>
             </div>
-            <div class="block">
-                <div class="content" onclick="goToReg()">
-                    <h2>
-                        Зарегестрироваться
-                    </h2>
-                </div>
+
+            <br>
+
+            <div class="jumbotron">
+                <h1 class="display-4">Начните сейчас</h1>
+                <p class="lead">
+                    Регистрация на сайте бесплатна. Вы можете начать пользоваться облачным хранилищем прямо сейчас!
+                </p>
+                <a class="btn btn-outline-primary btn-lg" href="/accounts/signup" role="button">Зарегестрироваться</a>
             </div>
+
+            <hr>
+
         </div>
-    </div>
+
+    </main>
+
+    <footer class="container">
+        <p>&copy; coder8080 2019-2020</p>
+    </footer>
 {% endblock content %}

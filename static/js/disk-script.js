@@ -1,21 +1,8 @@
-function initForms() {
-    let new_folder_form = document.getElementById("new-folder-form")
-    new_folder_form.addEventListener('submit', (e) => {
-        e.preventDefault()
-        createFolder()
-    })
-    let upload_file_form = document.getElementById("upload-file-form")
-    upload_file_form.addEventListener('submit', e => {
-        e.preventDefault()
-        uploadFiles()
-    })
-}
-
 function createFolder() {
     /* Функция создания папки */
     //Получаем данные из страницы
     let name = document.getElementById("folderName").value
-    document.getElementById("folderName").value = ""
+    // document.getElementById("folderName").value = ""
     let dir = document.getElementById("dir").value
     let csrf_token = document.querySelector("input[name=csrfmiddlewaretoken]").value
     let form_data = new FormData()
@@ -84,69 +71,47 @@ function sayToUser(response, operation, name) {
 
             let folders = document.getElementById("folders")
 
-            let new_folder = document.createElement("div")
-            new_folder.className = "fileblock"
-            new_folder.id = `---folder-div_${name}`
+            let new_li = document.createElement("li")
+            new_li.className = "list-group-item"
+            new_li.id = `---folder-div_${name}`
 
-            let img = document.createElement("img")
-            img.src = "/static/images/folder.png"
-            img.height = 60
-            img.width = 60
-            img.alt = "Папка"
-
-            let h2 = document.createElement("h2")
-            let text_h2 = document.createTextNode(name)
-            h2.append(text_h2)
-
-            let a_open = document.createElement("a")
-
-            if (dir_input_value === "none") {
-                a_open.href = `/mydisk/${name}`
+            let final
+            if (dir_input_value !== "none") {
+                final = `/mydisk/${dir_input_value}\`${name}`
             } else {
-                a_open.href = `/mydisk/${dir_input_value}\`${name}`
+                final = `/mydisk/${name}`
             }
-            let img_open = document.createElement("img")
-            img_open.src = "/static/images/open.png"
-            img_open.alt = "открыть"
-            img_open.width = 45
-            img_open.height = 45
-            a_open.append(img_open)
-
-            let a_remove = document.createElement("a")
-            a_remove.onclick = () => {
-                remove(dir_input_value, name, 'delete-folder')
-            }
-            let img_remove = document.createElement("img")
-            img_remove.src = "/static/images/trash.png"
-            img_remove.alt = "удалить"
-            img_remove.width = 40
-            img_remove.height = 40
-            img_remove.style = "cursor: pointer;"
-            a_remove.append(img_remove)
-
-            new_folder.append(img)
-            new_folder.append(h2)
-            new_folder.append(a_open)
-            new_folder.append(a_remove)
-
-            folders.append(new_folder)
-
-            //И скрываем диалоговое окно с именем папки
-            hide()
+            new_li.innerHTML = `
+            <div class="fileblock">
+                <img src="/static/images/folder.png" alt="Папка" width="60px" height="60px">
+                <h4>
+                    ${name}
+                </h4>
+                <a href="${final}" title="открыть">
+                    <img src="/static/images/open.png" alt="открыть" width="45px" height="45px">
+                </a>
+                <a onclick="remove('${dir_input_value}', '${name}', 'delete-folder')" title="удалить">
+                    <img src="/static/images/trash.png" alt="удалить" width="40px" height="40px">
+                </a>
+            </div>
+            `
+            folders.append(new_li)
         } else if (operation === "delete-folder") {
             //Если мы удаляли папку, то удаляем её как элемент
             let folder_remove = document.getElementById(`---folder-div_${name}`)
-            console.log(folder_remove)
             folder_remove.remove()
         } else if (operation === "delete-file") {
             let file_remove = document.getElementById(`---file-div_${name}`)
             file_remove.remove()
         } else if (operation === "make-public") {
-            let file = document.getElementById(`---file-div_${name}`)
+            let li = document.getElementById(`---file-div_${name}`)
+            let file = li.querySelector("div")
             let a_old = document.getElementById(`---make-public-a_${name}`)
             a_old.remove()
             let a = document.createElement("a")
-            response.text().then(text => a.onclick = function(){copy(text)})
+            response.text().then(text => a.onclick = function () {
+                copy(text)
+            })
             let img = document.createElement("img")
             img.src = "/static/images/link.png"
             img.width = 40
@@ -157,90 +122,43 @@ function sayToUser(response, operation, name) {
             file.append(a)
         } else if (operation === "upload-files") {
             for (let i = 0; i < name.length; i++) {
-                let files = document.getElementById("fileBox")
+                let ul = document.getElementById("files-ul")
                 let dir_input_value = document.getElementById("dir").value
 
-                let new_file = document.createElement("div")
-                new_file.className = "fileblock"
-                new_file.id = `---file-div_${name[i].name}`
-
-                let img = document.createElement("img")
-                img.src = "/static/images/file.png"
-                img.height = 65
-                img.width = 65
-                img.alt = "Файл"
-
-                let h2 = document.createElement("h2")
-                let text_h2 = document.createTextNode(name[i].name)
-                h2.append(text_h2)
-
-                let a_download = document.createElement("a")
-                a_download.href = `/download/${dir_input_value}/${name[i].name}`
-
-                let img_download = document.createElement("img")
-                img_download.src = "/static/images/download.png"
-                img_download.alt = "скачать"
-                img_download.width = 55
-                img_download.height = 55
-                a_download.append(img_download)
-
-                let a_remove = document.createElement("a")
-                a_remove.onclick = () => {
-                    remove(dir_input_value, name[i].name, 'delete-file')
-                }
-                let img_remove = document.createElement("img")
-                img_remove.src = "/static/images/trash.png"
-                img_remove.alt = "удалить"
-                img_remove.width = 40
-                img_remove.height = 40
-                img_remove.style = "cursor: pointer;"
-                a_remove.append(img_remove)
-
-                let a_make_public = document.createElement("a")
-                a_make_public.onclick = () => {
-                    makePublic(name[i].name, dir_input_value)
-                }
-                a_make_public.id = `---make-public-a_${name[i].name}`
-                let img_make_public = document.createElement("img")
-                img_make_public.src = "/static/images/add-link.png"
-                img_make_public.alt = "сделать общедоступным"
-                img_make_public.width = 40
-                img_make_public.height = 40
-                img_make_public.style = "cursor: pointer;"
-                a_make_public.append(img_make_public)
-
-                new_file.append(img)
-                new_file.append(h2)
-                new_file.append(a_download)
-                new_file.append(a_remove)
-                new_file.append(a_make_public)
-
-                files.append(new_file)
-                hide()
+                let new_li = document.createElement("li")
+                new_li.className = "list-group-item"
+                new_li.id = `---file-div_${name[i].name}`
+                new_li.innerHTML = `
+                <div class="fileblock">
+                    <img src="/static/images/file.png" alt="Файл" width="65px" height="65px">
+                    <h4>
+                        ${name[i].name}
+                    </h4>
+                    <a href="/download/${dir_input_value}/${name[i].name}" title="скачать" download>
+                        <img src="/static/images/download.png" alt="скачать" width="55px" height="55px">
+                    </a>
+                    <a title="удалить" onclick="remove('${dir_input_value}', '${name[i].name}', 'delete-file')">
+                        <img src="/static/images/trash.png" alt="удалить" width="40px" height="40px">
+                    </a>
+                    <a onclick="makePublic('${name[i].name}', '${dir_input_value}')" title="сделать общедоступным"
+                       id="---make-public-a_${name[i].name}">
+                        <img src="/static/images/add-link.png" alt="сделать общедоступным" width="40px"
+                             height="40px">
+                    </a>
+                </div>
+                `
+                ul.append(new_li)
             }
         } else {
             console.log("Не указано действие.")
         }
     } else {
         //Если операцию не удалось выполнить, то отправляем пользователю соответствующие сообщениев
-        alert("Не удалось выполнить операцию. Попробуйте перезагрузить страницу или свяжитесь с системным администратором.")
-    }
-}
-
-const createDir = () => {
-    let parent = document.getElementById("parent-create-folder")
-    parent.style.display = "flex";
-}
-
-const showUploadForm = () => {
-    let parent = document.getElementById("parent-upload-files")
-    parent.style.display = "flex";
-}
-
-const hide = () => {
-    let parents = document.getElementsByClassName("parent")
-    for (let i = 0; i < parents.length; i++) {
-        parents[i].style.display = "none";
+        if (operation === 'upload-files') {
+            alert("Не достаточно места на диске.")
+        } else {
+            alert("Не удалось выполнить операцию. Попробуйте перезагрузить страницу или свяжитесь с системным администратором.")
+        }
     }
 }
 
@@ -249,9 +167,7 @@ const inputChanged = () => {
     let label = document.getElementById("nameOfFile");
     let text = "";
     for (let i = 0; i < input.files.length; i++) {
-        console.log(input.files[i].name)
         text += input.files[i].name + "<br>"
     }
-    console.log(text);
     label.innerHTML = text;
 }
