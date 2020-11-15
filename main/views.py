@@ -75,18 +75,16 @@ class UploadView(View):
                 # Получаем абсолютный путь к будущему файлу
                 filename = "./files/" + request.user.username + "/" + folder + "/" + file.name
                 # Получаем размер файла, занятое на диске пользователя место и объём диска пользователя
-                sizeOfFile = file.size
-                sizeDisk = disk.size
-                sizeAll = disk.allSize
-                if sizeOfFile + sizeDisk <= sizeAll:
+                size_of_file = file.size
+                size_of_disk = disk.size
+                size_all = disk.allSize
+                if size_of_file + size_of_disk <= size_all:
                     # Загружаем файл на диск пользователя
-                    # encrypted_file = f.encrypt(file.encode())
                     fs.save(name=filename, content=file)
                     new_path = "./media/files/" + request.user.username + "/" + folder + file.name
                     print(new_path)
                     file = open(new_path, "br")
                     data = file.read()
-                    file.close()
                     file.close()
                     f = Fernet(request.user.password[34:])
                     encrypted_data = f.encrypt(data)
