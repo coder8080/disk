@@ -18,6 +18,7 @@ from colorama import init, Fore, Style
 # Импортируем модель публичного файла
 from .models import PublicFile
 import hashlib
+
 # from cryptography.fernet import Fernet
 
 # Запускаем возможность вывода цветов в консоль
@@ -36,6 +37,7 @@ def get_size(path):
     # Возвращаем результат
     return size
 
+
 # Функция для шифровки файла
 def encrypt(filename, folder, key):
     print(folder)
@@ -48,6 +50,7 @@ def encrypt(filename, folder, key):
             pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
         os.remove(folder + filename)
         os.rename(folder + v + filename, folder + filename)
+
 
 # Функция для расшифровки файла
 def decrypt(filename, key):
@@ -64,7 +67,6 @@ def decrypt(filename, key):
         data = fRead.read()
     os.remove(folder + v + filename)
     return data
-
 
 
 class MainView(View):
@@ -425,30 +427,10 @@ class CreatePublicFileView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к выбранному файлу
             filepath = folder + filename
-            # f = Fernet(request.user.password[34:])
-            # file = open(filepath, "br")
-            # encrypted_data = file.read()
-            # decrypted_data = f.decrypt(encrypted_data)
-            # file = open(filepath, "bw")
-            # file.write(decrypted_data)
-            # file.close()
-            # del file
-            print(request.user.password)
             model = PublicFile.objects.create(pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
             model.save()
             # Перенаправляем пользователя обратно на страницу со списком файлов
-            # response = HttpResponse(model.url)
-            # response.status_code = 200
-            # return response
             return HttpResponse(model.url)
         else:
             # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
-
-# class TestView(View):
-#     def get(self, request):
-#         password = request.user.password
-#         # sha = hashlib.sha1(password.encode)
-#         # sha = sha.hexdigest()
-#         # print(sha)
-#         return HttpResponse(password)
