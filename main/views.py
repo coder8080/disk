@@ -1,4 +1,5 @@
 # Импортируем штуку для работы с файлами
+import pyAesCrypt
 from django.core.files.storage import FileSystemStorage
 # Импортируем другую штуку для работы с файлами
 import os
@@ -17,7 +18,7 @@ from colorama import init, Fore, Style
 # Импортируем модель публичного файла
 from .models import PublicFile
 import hashlib
-from cryptography.fernet import Fernet
+# from cryptography.fernet import Fernet
 
 # Запускаем возможность вывода цветов в консоль
 init()
@@ -28,12 +29,42 @@ def get_size(path):
     # Объявляем переменную в которой будет находится итоговый результат
     size = 0
     # Цикл для подсчёта размера всех файлов
-    for dirpath, dirnames, filenames in os.walk(path):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
+    for full_path, dirs_names, files_names in os.walk(path):
+        for f in files_names:
+            fp = os.path.join(full_path, f)
             size += os.path.getsize(fp)
     # Возвращаем результат
     return size
+
+# Функция для шифровки файла
+def encrypt(filename, folder, key):
+    print(folder)
+    print(filename)
+    v = "_"
+    while os.path.exists(folder + v + filename):
+        v += "_"
+    with open(folder + filename, "br") as fIn:
+        with open(folder + v + filename, "bw") as fOut:
+            pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
+        os.remove(folder + filename)
+        os.rename(folder + v + filename, folder + filename)
+
+# Функция для расшифровки файла
+def decrypt(filename, key):
+    v = "_"
+    folder = os.path.dirname(filename) + "/"
+    filename = os.path.basename(filename)
+    while os.path.exists(folder + v + filename):
+        v += "_"
+    with open(folder + filename, "br") as fIn:
+        with open(folder + v + filename, "bw") as fOut:
+            file_size = os.path.getsize(folder + filename)
+            pyAesCrypt.decryptStream(fIn, fOut, key, 1024, file_size)
+    with open(folder + v + filename, "br") as fRead:
+        data = fRead.read()
+    os.remove(folder + v + filename)
+    return data
+
 
 
 class MainView(View):
@@ -54,13 +85,14 @@ class UploadView(View):
     """Загрузка файла"""
 
     def post(self, request):
+        # Начинаем (уже здесь!) готовить ответ пользователю
+        response = HttpResponse()
         # Смотрим, авторизован ли пользователь
         if request.user.is_authenticated:
             # Получаем инструмент для работы с файлами
             fs = FileSystemStorage()
-            # Получаем файл
+            # Получаем файлы
             files = request.FILES.getlist('files')
-            print(files)
             # Получаем папку, в которую надо загруить файл
             folder = request.POST.get("dir")
             # Корректируем путь для сохранения файла
@@ -74,6 +106,7 @@ class UploadView(View):
             for file in files:
                 # Получаем абсолютный путь к будущему файлу
                 filename = "./files/" + request.user.username + "/" + folder + "/" + file.name
+                abs_folder = "./media/files/" + request.user.username + "/" + folder
                 # Получаем размер файла, занятое на диске пользователя место и объём диска пользователя
                 size_of_file = file.size
                 size_of_disk = disk.size
@@ -81,18 +114,11 @@ class UploadView(View):
                 if size_of_file + size_of_disk <= size_all:
                     # Загружаем файл на диск пользователя
                     fs.save(name=filename, content=file)
-                    new_path = "./media/files/" + request.user.username + "/" + folder + file.name
-                    print(new_path)
-                    file = open(new_path, "br")
-                    data = file.read()
-                    file.close()
-                    f = Fernet(request.user.password[34:])
-                    encrypted_data = f.encrypt(data)
-                    file = open(new_path, "bw")
-                    file.write(encrypted_data)
-                    file.close()
-                    del file
-                    # Вычисляем и записываем новое количество занятого места
+                    # Получаем путь к загруженному файлу
+                    key = request.user.password[34:]
+                    # Шифруем файл
+                    encrypt(file.name, abs_folder, key)
+                    # Вычисляем и записываем новое количество занятого
                     disk.size = get_size(f"./media/files/{request.user.username}")
                     # Сохраняем изменения
                     disk.save()
@@ -103,11 +129,15 @@ class UploadView(View):
                     response = HttpResponse()
                     response.status_code = 404
                     return response
-            # Перебрасываем пользователя на страницу с его диском
-            return redirect("/mydisk")
+            # Записываем успешный результат в ответ
+            response.status_code = 200
         else:
-            # Если не авторизован, то перебрасываем на страницу входа
-            return redirect("/accounts/login")
+            # Записываем неуспешный результат в ответ
+            response.status_code = 404
+        """Почему мы возвращаем только status_code, а не страницу либо переадресацию? Если вы внимательно изучите 
+        код, то узнаете, что сэтой страницой я общаюсь только через функцию fetch, из которой намного удобнее 
+        работать со статусами запроса, а не возвращаемым текстом и другими типами информации."""
+        return response
 
 
 class PrivateOfficeView(View):
@@ -224,14 +254,8 @@ class DownloadView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к будущему файлу
             filepath = folder + filename
-            opened_data = open(filepath, "br").read()
-            try:
-                PublicFile.objects.get(pathToFile=filepath)
-                final_data = opened_data
-            except:
-                f = Fernet(request.user.password[34:])
-                final_data = f.decrypt(opened_data)
-            # Получаем сам файл
+            password = request.user.password
+            final_data = decrypt(filepath, password[34:])
             # Отправляем файл пользователю
             response = HttpResponse(final_data, 'application')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -373,11 +397,9 @@ class DownloadPublicView(View):
     def get(self, request, code):
         # Получаем объект общедоступного файла из базы данных
         object_file = PublicFile.objects.get(url=code)
-        # Получаем данные из файла
-        file = open(object_file.pathToFile, "br")
-        data = file.read()
-        file.close()
-        del file
+        # Расшифровываем файл
+        key = object_file.disk.user.password[34:]
+        data = decrypt(object_file.pathToFile, key)
         # Отправляем файл пользователю
         response = HttpResponse(data, "application")
         response['Content-Disposition'] = f'attachment; filename={os.path.basename(object_file.pathToFile)}'
@@ -403,14 +425,15 @@ class CreatePublicFileView(View):
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к выбранному файлу
             filepath = folder + filename
-            f = Fernet(request.user.password[34:])
-            file = open(filepath, "br")
-            encrypted_data = file.read()
-            decrypted_data = f.decrypt(encrypted_data)
-            file = open(filepath, "bw")
-            file.write(decrypted_data)
-            file.close()
-            del file
+            # f = Fernet(request.user.password[34:])
+            # file = open(filepath, "br")
+            # encrypted_data = file.read()
+            # decrypted_data = f.decrypt(encrypted_data)
+            # file = open(filepath, "bw")
+            # file.write(decrypted_data)
+            # file.close()
+            # del file
+            print(request.user.password)
             model = PublicFile.objects.create(pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
             model.save()
             # Перенаправляем пользователя обратно на страницу со списком файлов
