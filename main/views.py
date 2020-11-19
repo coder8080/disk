@@ -1,5 +1,4 @@
 # Импортируем штуку для работы с файлами
-import pyAesCrypt
 from django.core.files.storage import FileSystemStorage
 # Импортируем другую штуку для работы с файлами
 import os
@@ -17,9 +16,9 @@ from .models import Disk, PublicFile
 from colorama import init, Fore, Style
 # Импортируем модель публичного файла
 from .models import PublicFile
-import hashlib
-
-# from cryptography.fernet import Fernet
+# Импортируем инструменты шифрования
+import pyAesCrypt
+import io
 
 # Запускаем возможность вывода цветов в консоль
 init()
@@ -38,35 +37,21 @@ def get_size(path):
     return size
 
 
-# Функция для шифровки файла
-def encrypt(filename, folder, key):
-    print(folder)
-    print(filename)
-    v = "_"
-    while os.path.exists(folder + v + filename):
-        v += "_"
-    with open(folder + filename, "br") as fIn:
-        with open(folder + v + filename, "bw") as fOut:
-            pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
-        os.remove(folder + filename)
-        os.rename(folder + v + filename, folder + filename)
+# Функция для шифрования файла
+def encrypt(filename, key):
+    fOut = io.BytesIO()
+    with open(filename, "br") as fIn:
+        pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
+    with open(filename, "bw") as file:
+        file.write(fOut.getvalue())
 
 
 # Функция для расшифровки файла
 def decrypt(filename, key):
-    v = "_"
-    folder = os.path.dirname(filename) + "/"
-    filename = os.path.basename(filename)
-    while os.path.exists(folder + v + filename):
-        v += "_"
-    with open(folder + filename, "br") as fIn:
-        with open(folder + v + filename, "bw") as fOut:
-            file_size = os.path.getsize(folder + filename)
-            pyAesCrypt.decryptStream(fIn, fOut, key, 1024, file_size)
-    with open(folder + v + filename, "br") as fRead:
-        data = fRead.read()
-    os.remove(folder + v + filename)
-    return data
+    data = io.BytesIO()
+    with open(filename, "br") as fIn:
+        pyAesCrypt.decryptStream(fIn, data, key, 1024, os.path.getsize(filename))
+    return data.getvalue()
 
 
 class MainView(View):
@@ -107,8 +92,7 @@ class UploadView(View):
             disk = Disk.objects.get(user__username=request.user.username)
             for file in files:
                 # Получаем абсолютный путь к будущему файлу
-                filename = "./files/" + request.user.username + "/" + folder + "/" + file.name
-                abs_folder = "./media/files/" + request.user.username + "/" + folder
+                filename = "./files/" + request.user.username + "/" + folder + file.name
                 # Получаем размер файла, занятое на диске пользователя место и объём диска пользователя
                 size_of_file = file.size
                 size_of_disk = disk.size
@@ -119,7 +103,8 @@ class UploadView(View):
                     # Получаем путь к загруженному файлу
                     key = request.user.password[34:]
                     # Шифруем файл
-                    encrypt(file.name, abs_folder, key)
+                    abs_filename = "./media/files/" + request.user.username + "/" + folder + file.name
+                    encrypt(abs_filename, key)
                     # Вычисляем и записываем новое количество занятого
                     disk.size = get_size(f"./media/files/{request.user.username}")
                     # Сохраняем изменения
@@ -180,7 +165,7 @@ class DiskView(View):
                 # И записываем значение в переменную
                 dir = "/" + "/".join(folder)
 
-            # Объявляемd переменные для анализа директории
+            # Объявляем переменные для анализа директории
             files_linked = []
             files_unlinked = []
             folders = []
@@ -202,15 +187,15 @@ class DiskView(View):
                 for file in files:
                     # Получаем расширение файла
                     try:
-                        test = PublicFile.objects.get(
+                        model = PublicFile.objects.get(
                             pathToFile="./media/files/" + request.user.username + dir + "/" + file)
                         linked = True
                     except:
                         linked = False
                     # Проверяем расширение файла и то, в публичном ли он доступе
                     if linked is True:
-                        work = [file, test.url]
-                        files_linked += [work]
+                        list_to_add = [file, model.url]
+                        files_linked += [list_to_add]
                     elif linked is False:
                         files_unlinked += [file]
                     else:
@@ -257,6 +242,7 @@ class DownloadView(View):
             # Получаем абсолютный путь к будущему файлу
             filepath = folder + filename
             password = request.user.password
+            print(filepath)
             final_data = decrypt(filepath, password[34:])
             # Отправляем файл пользователю
             response = HttpResponse(final_data, 'application')
