@@ -1,4 +1,4 @@
-# Импортируем штуку для работы с файлами
+# Импортируем инструмент для работы с файлами
 from django.core.files.storage import FileSystemStorage
 # Импортируем другую штуку для работы с файлами
 import os
@@ -29,9 +29,13 @@ def get_size(path):
     # Объявляем переменную в которой будет находится итоговый результат
     size = 0
     # Цикл для подсчёта размера всех файлов
+    # Получаем все файлы находящиеся в рассматриваемой папке
     for full_path, dirs_names, files_names in os.walk(path):
+        # Цикл для работы с полученными файлами
         for f in files_names:
+            # Получаем полный путь к файлу
             fp = os.path.join(full_path, f)
+            # Прибавляем к размеру папки размер рассматриваемого файла
             size += os.path.getsize(fp)
     # Возвращаем результат
     return size
@@ -39,17 +43,24 @@ def get_size(path):
 
 # Функция для шифрования файла
 def encrypt(filename, key):
+    # Создаём переменную в которой окажется зашифрованная информация
     fOut = io.BytesIO()
+    # Открываем нужный файл
     with open(filename, "br") as fIn:
+        # Шифруем открытый файл в переменную
         pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
     with open(filename, "bw") as file:
+        # Записываем значение переменной в файл
         file.write(fOut.getvalue())
 
 
 # Функция для расшифровки файла
 def decrypt(filename, key):
+    # Создаём переменную в которой окажется зашифрованная информация
     data = io.BytesIO()
+    # Открываем нужный файл
     with open(filename, "br") as fIn:
+        # Шифруем открытый файл в переменную
         pyAesCrypt.decryptStream(fIn, data, key, 1024, os.path.getsize(filename))
     return data.getvalue()
 
@@ -141,7 +152,7 @@ class PrivateOfficeView(View):
             # Отправляем шаблон с данными пользователю
             return render(request, 'main/main.html', {"busy": round(disk.size / 1000000),
                                                       "all": round(disk.allSize / 1000000),
-                                                      "free": round((disk.allSize - disk.size) / 1000000),
+                                                      "free": round((disk.allSize - disk.size) / 1048576),
                                                       "pct": round(pct)})
         else:
             # Если не авторизован, то перенаправляем на страницу входа

@@ -17,20 +17,26 @@
         </h2>
     </div>
     <div class="container text-center" style="margin-top: 10px">
-        <div class="btn-group" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#uploadFilesModal">
-                Загрузить файлы
-            </button>
-            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#createFolderModal">
-                Создать папку
-            </button>
-            <button type="button" class="btn btn-info" onclick="document.location.replace('/main')">Личный
-                кабинет
-            </button>
-            {% if dir != "none" %}
-                <button type="button" class="btn btn-secondary" onclick="document.location.replace('/mydisk/none')">В
-                    главную директорию
+        <div class="btn-toolbar text-center" role="toolbar">
+            <div class="btn-group mr-2" role="group">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#uploadFilesModal">
+                    Загрузить файлы
                 </button>
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#createFolderModal">
+                    Создать папку
+                </button>
+                <button type="button" class="btn btn-info" onclick="document.location.replace('/main')">Личный
+                    кабинет
+                </button>
+
+            </div>
+            {% if dir != "none" %}
+                <div class="btn-group mr-2" role="group">
+                    <button type="button" class="btn btn-secondary" onclick="document.location.replace('/mydisk/none')">
+                        В
+                        главную директорию
+                    </button>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -41,7 +47,7 @@
                 <li class="list-group-item" id="---folder-div_{{ folder }}">
                     <div class="fileblock">
                         <img src="{% static 'images/folder.png' %}" alt="Папка" width="60px" height="60px">
-                        <h4>
+                        <h4 style="max-width: 50%; overflow: auto">
                             {{ folder }}
                         </h4>
                         <a href="/mydisk{% if dir != "none" %}/{{ dir }}`{% else %}/{% endif %}{{ folder }}"
@@ -60,7 +66,7 @@
             <li class="list-group-item" id="---file-div_{{ file.0 }}">
                 <div class="fileblock">
                     <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
-                    <h4>
+                    <h4 style="max-width: 50%; overflow: auto">
                         {{ file.0 }}
                     </h4>
                     <a href="/download/{{ dir }}/{{ file.0 }}" title="загрузить" download>
@@ -80,7 +86,7 @@
             <li class="list-group-item" id="---file-div_{{ file }}">
                 <div class="fileblock">
                     <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">
-                    <h4>
+                    <h4 style="max-width: 50%; overflow: auto">
                         {{ file }}
                     </h4>
                     <a href="/download/{{ dir }}/{{ file }}" title="скачать" download>
@@ -97,57 +103,57 @@
                 </div>
             </li>
         {% endfor %}
-{#        {% for file in files_preview_linked %}#}
-{#            <li class="list-group-item" id="---file-div_{{ file.0 }}">#}
-{#                <div class="fileblock">#}
-{#                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">#}
-{#                    <h4>#}
-{#                        {{ file.0 }}#}
-{#                    </h4>#}
-{#                    <a href="/download/{{ dir }}/{{ file.0 }}"#}
-{#                       title="скачать" download>#}
-{#                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">#}
-{#                    </a>#}
-{#                    <a onclick="remove('{{ dir }}', '{{ file.0 }}', 'delete-file')" title="удалить">#}
-{#                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">#}
-{#                    </a>#}
-{#                    <a href="/text/{{ dir }}/{{ file.0 }}"#}
-{#                       title="предпросмотр">#}
-{#                        <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">#}
-{#                    </a>#}
-{#                    <a title="копировать ссылку на файл" onclick="copy('{{ file.1 }}')"#}
-{#                       style="cursor: pointer">#}
-{#                        <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px"#}
-{#                             height="40px">#}
-{#                    </a>#}
-{#                </div>#}
-{#            </li>#}
-{#        {% endfor %}#}
-{#        {% for file in files_preview_unlinked %}#}
-{#            <li class="list-group-item" id="---file-div_{{ file }}">#}
-{#                <div class="fileblock">#}
-{#                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">#}
-{#                    <h4>#}
-{#                        {{ file }}#}
-{#                    </h4>#}
-{#                    <a href="/download/{{ dir }}/{{ file.0 }}"#}
-{#                       title="скачать" download>#}
-{#                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">#}
-{#                    </a>#}
-{#                    <a onclick="remove('{{ dir }}', '{{ file }}', 'delete-file')" title="удалить">#}
-{#                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">#}
-{#                    </a>#}
-{#                    <a href="/text/{{ dir }}/{{ file }}"#}
-{#                       title="предпросмотр">#}
-{#                        <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">#}
-{#                    </a>#}
-{#                    <a onclick="makePublic('{{ file }}', '{{ dir }}')" id="---make-public-a_{{ file }}">#}
-{#                        <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px"#}
-{#                             height="40px">#}
-{#                    </a>#}
-{#                </div>#}
-{#            </li>#}
-{#        {% endfor %}#}
+        {#        {% for file in files_preview_linked %}#}
+        {#            <li class="list-group-item" id="---file-div_{{ file.0 }}">#}
+        {#                <div class="fileblock">#}
+        {#                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">#}
+        {#                    <h4>#}
+        {#                        {{ file.0 }}#}
+        {#                    </h4>#}
+        {#                    <a href="/download/{{ dir }}/{{ file.0 }}"#}
+        {#                       title="скачать" download>#}
+        {#                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">#}
+        {#                    </a>#}
+        {#                    <a onclick="remove('{{ dir }}', '{{ file.0 }}', 'delete-file')" title="удалить">#}
+        {#                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">#}
+        {#                    </a>#}
+        {#                    <a href="/text/{{ dir }}/{{ file.0 }}"#}
+        {#                       title="предпросмотр">#}
+        {#                        <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">#}
+        {#                    </a>#}
+        {#                    <a title="копировать ссылку на файл" onclick="copy('{{ file.1 }}')"#}
+        {#                       style="cursor: pointer">#}
+        {#                        <img src="{% static '/images/link.png' %}" alt="копировать ссылку" width="40px"#}
+        {#                             height="40px">#}
+        {#                    </a>#}
+        {#                </div>#}
+        {#            </li>#}
+        {#        {% endfor %}#}
+        {#        {% for file in files_preview_unlinked %}#}
+        {#            <li class="list-group-item" id="---file-div_{{ file }}">#}
+        {#                <div class="fileblock">#}
+        {#                    <img src="{% static 'images/file.png' %}" alt="Файл" width="65px" height="65px">#}
+        {#                    <h4>#}
+        {#                        {{ file }}#}
+        {#                    </h4>#}
+        {#                    <a href="/download/{{ dir }}/{{ file.0 }}"#}
+        {#                       title="скачать" download>#}
+        {#                        <img src="{% static '/images/download.png' %}" alt="скачать" width="55px" height="55px">#}
+        {#                    </a>#}
+        {#                    <a onclick="remove('{{ dir }}', '{{ file }}', 'delete-file')" title="удалить">#}
+        {#                        <img src="{% static '/images/trash.png' %}" alt="удалить" width="40px" height="40px">#}
+        {#                    </a>#}
+        {#                    <a href="/text/{{ dir }}/{{ file }}"#}
+        {#                       title="предпросмотр">#}
+        {#                        <img src="{% static 'images/view.png' %}" alt="предпросмотр" width="40px" height="40px">#}
+        {#                    </a>#}
+        {#                    <a onclick="makePublic('{{ file }}', '{{ dir }}')" id="---make-public-a_{{ file }}">#}
+        {#                        <img src="{% static '/images/add-link.png' %}" alt="сделать общедоступным" width="40px"#}
+        {#                             height="40px">#}
+        {#                    </a>#}
+        {#                </div>#}
+        {#            </li>#}
+        {#        {% endfor %}#}
     </ul>
     <div class="modal fade" id="uploadFilesModal" tabindex="-1" aria-labelledby="uploadFilesModalLabel"
          aria-hidden="true">

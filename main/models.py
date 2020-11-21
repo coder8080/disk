@@ -23,7 +23,7 @@ class Disk(models.Model):
 
 def generate_token():
     duplicate = True
-    while (duplicate == True):
+    while duplicate:
         token = "".join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for x in range(16))
         try:
             PublicFile.objects.get(url=token)

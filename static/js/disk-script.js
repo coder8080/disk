@@ -53,8 +53,18 @@ function makePublic(name, dir) {
 
 function uploadFiles() {
     /* Функция загрузки файлов */
+    //Получаем необходимые элементы со страницы
     let upload_file_form = document.getElementById("upload-file-form")
     let input_file = document.getElementById("input-file")
+    for (let i = 0; i < input_file.files.length; i++) {
+        if (Math.floor(input_file.files[i].size / 1000000) >= 100) {
+            //По умолчанию функция alert ждёт, пока пользователь нажмёт кнопку "ОК", а в данном случае нам это ожидание не нужно. Поэтому я и использую timeout
+            setTimeout(function () {
+                alert("Вы загружаете файл большого объёма. Учтите, что нам понадобится некоторое время на его обработку. Нажмите OK")
+            }, 1)
+            break
+        }
+    }
     fetch('/upload', {
         method: "POST",
         body: new FormData(upload_file_form)
