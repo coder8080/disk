@@ -53,7 +53,6 @@ function makePublic(name, dir) {
 
 function uploadFiles() {
     /* Функция загрузки файлов */
-    //Получаем необходимые элементы со страницы
     let upload_file_form = document.getElementById("upload-file-form")
     let input_file = document.getElementById("input-file")
     for (let i = 0; i < input_file.files.length; i++) {
