@@ -72,13 +72,6 @@ class MainView(View):
         return render(request, 'main/index.html')
 
 
-class AuthorView(View):
-    """Страница 'обо мне' """
-
-    def get(self, request):
-        return render(request, "main/author.html")
-
-
 class UploadView(View):
     """Загрузка файла"""
 
