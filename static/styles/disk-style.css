@@ -6,6 +6,10 @@
   font-size: 16px;
 }
 
+svg{
+    height: 3rem;
+}
+
 #fileBox {
     display: flex;
     flex-direction: column;

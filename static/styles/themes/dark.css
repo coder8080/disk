@@ -1,12 +1,16 @@
 body {
-    background: black;
-    color: white;
+    background-color: #101010;
+    color: #c3c3c3;
+}
+
+.header{
+    color: white !important;
 }
 
 /*#a200ff*/
 
 .icon {
-    fill: white;
+    fill: #c3c3c3;
 }
 
 .modal-content{

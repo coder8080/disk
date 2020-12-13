@@ -5,21 +5,15 @@
 {% endblock title %}
 
 {% block content %}
-    {% get_header 'logout' %}
+    {% get_header 'logout' request %}
     <div class="container">
         <p class="h4">
             Вы точно хотите выйти?
         </p>
-        <div class="row">
-            <div class="col-sm-2">
-                <form action="{% url 'account_logout' %}" method="POST">
-                    {% csrf_token %}
-                    <input type="submit" class="btn btn-outline-danger" value="Выйти">
-                </form>
-            </div>
-            <div class="col-sm-2">
-                <a href="/mydisk" class="btn btn-outline-success">Остаться</a>
-            </div>
-        </div>
+        <a href="/mydisk" class="btn btn-outline-success mb-2">Остаться</a>
+        <form action="{% url 'account_logout' %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-outline-danger" value="Выйти">
+        </form>
     </div>
 {% endblock %}

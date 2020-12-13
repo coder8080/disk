@@ -6,15 +6,15 @@
 {% endblock title %}
 
 {% block content %}
-    {% get_header 'private_office' request.user.disk_set.all.0.theme %}
+    {% get_header 'private_office' request %}
     <div class="container text-center">
-        <h2>
+        <h2 class="header">
             Личный кабинет пользователя {{ user.username }}
         </h2>
     </div>
     <div class="container" style="margin-top: 70px">
         <div class="row">
-            <div class="col-md text-center">
+            <div class="col-md">
                 <p>
                     Занято: {{ busy }} мб
                 </p>
@@ -37,7 +37,7 @@
                     Выйти
                 </button>
             </div>
-            <div class="col-md text-center">
+            <div class="col-md">
                 <p class="h2">
                     Тема оформления:
                 </p>

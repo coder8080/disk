@@ -5,7 +5,7 @@
 
 {% block content %}
     <main role="main">
-        {% get_header 'main' request.user.disk_set.all.0.theme %}
+        {% get_header 'main' request %}
         <div class="p-5" style="
                 {% if request.user.disk_set.all.0.theme != 'dark' %}
                     background: url('/static/images/new_year_back.jpg') fixed;
@@ -13,7 +13,7 @@
                 {% endif %}
                 ">
             <div class="container">
-                <p class="display-3">Проект "Disk"</p>
+                <p class="display-3 header">Проект "Disk"</p>
                 <p>
                     Disk - система облачного хранения файлов
                 </p>
@@ -28,7 +28,7 @@
         <div class="container mt-3">
             <div class="row">
                 <div class="col-md-4">
-                    <h2>Простота использования</h2>
+                    <h2 class="header">Простота использования</h2>
                     <p>
                         Я пытался сделать сайт максимально понятным для неподготовленного пользователя, и, надеюсь, у
                         меня
@@ -36,7 +36,7 @@
                     </p>
                 </div>
                 <div class="col-md-4">
-                    <h2>Безопасность</h2>
+                    <h2 class="header">Безопасность</h2>
                     <p>
                         Пользоваться сайтом безопасно. Как только вы загружаете файл на сервер, программа шифрует его.
                         Таким
@@ -44,7 +44,7 @@
                     </p>
                 </div>
                 <div class="col-md-4">
-                    <h2>Доступность</h2>
+                    <h2 class="header">Доступность</h2>
                     <p>
                         Мой проект использует лицензию MIT и хранится в открытом доступе на github. Если вы программист,
                         то
@@ -64,7 +64,7 @@
                 bg-dark
             {% endif %}
             ">
-                <h1 class="display-4">Начните сейчас</h1>
+                <h1 class="display-4 header">Начните сейчас</h1>
                 <p class="lead">
                     Регистрация на сайте бесплатна. Вы можете начать пользоваться облачным хранилищем прямо сейчас!
                 </p>
@@ -78,6 +78,6 @@
     </main>
 
     <footer class="container">
-        <p>&copy; coder8080 2019-2020</p>
+        <p>&copy; coder8080 2017-2020</p>
     </footer>
 {% endblock content %}

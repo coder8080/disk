@@ -140,12 +140,10 @@ class PrivateOfficeView(View):
             # Получаем диск пользователя
             disk = Disk.objects.get(user__username=request.user.username)
             pct = ((disk.size / 1000000) / (disk.allSize / 1000000)) * 100
-            print(disk.size / 1000000)
-            print(disk.allSize / 1000000)
             # Отправляем шаблон с данными пользователю
             return render(request, 'main/main.html', {"busy": round(disk.size / 1000000),
                                                       "all": round(disk.allSize / 1000000),
-                                                      "free": round((disk.allSize - disk.size) / 1048576),
+                                                      "free": round((disk.allSize - disk.size) / 1000000),
                                                       "pct": round(pct),
                                                       "theme": request.user.disk_set.all()[0].theme
                                                       })
