@@ -12,5 +12,6 @@ urlpatterns = [
     path("public/<str:url>", views.PublicFileView.as_view(), name='public-file'),
     path("download-public/<str:code>", views.DownloadPublicView.as_view(), name='download-public'),
     path("make-public", views.CreatePublicFileView.as_view(), name="create-public"),
+    path("change-theme/", views.ChangeThemeView.as_view(), name='change-theme'),
     path("", views.MainView.as_view(), name="main-page")
 ]

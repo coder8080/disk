@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% load main_tag %}
+{% load static %}
 {% block title %}
     {{ user.username }}
 {% endblock title %}
 
 {% block content %}
-    {% get_header 'private_office' %}
+    {% get_header 'private_office' request.user.disk_set.all.0.theme %}
     <div class="container text-center">
         <h2>
             Личный кабинет пользователя {{ user.username }}
@@ -17,7 +18,11 @@
                 <p>
                     Занято: {{ busy }} мб
                 </p>
-                <div class="progress">
+                <div class="progress
+                {% if theme == 'dark' %}
+                bg-dark
+                {% endif %}
+">
                     <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{ pct }}%"
                          aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
@@ -28,12 +33,25 @@
                 <p>
                     Всего: {{ all }} мб
                 </p>
-            </div>
-            <div class="col-md text-center">
                 <button class="btn btn-outline-danger" onclick="document.location.replace('/accounts/logout')">
                     Выйти
                 </button>
             </div>
+            <div class="col-md text-center">
+                <p class="h2">
+                    Тема оформления:
+                </p>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="theme-switch"
+                            {% if theme == 'dark' %}
+                           checked
+                            {% endif %}
+                    >
+                    {% csrf_token %}
+                    <label class="form-check-label" for="theme-switch">Тёмная тема</label>
+                </div>
+            </div>
         </div>
     </div>
+    <script src="{% static 'js/theme-script.js' %}"></script>
 {% endblock content %}

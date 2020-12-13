@@ -5,8 +5,13 @@
 
 {% block content %}
     <main role="main">
-        {% get_header 'main' %}
-        <div class="jumbotron" style="background: url('/static/images/back.jpg') fixed; background-size: cover">
+        {% get_header 'main' request.user.disk_set.all.0.theme %}
+        <div class="p-5" style="
+                {% if request.user.disk_set.all.0.theme != 'dark' %}
+                    background: url('/static/images/new_year_back.jpg') fixed;
+                    background-size: cover;
+                {% endif %}
+                ">
             <div class="container">
                 <p class="display-3">Проект "Disk"</p>
                 <p>
@@ -20,7 +25,7 @@
             </div>
         </div>
 
-        <div class="container">
+        <div class="container mt-3">
             <div class="row">
                 <div class="col-md-4">
                     <h2>Простота использования</h2>
@@ -52,7 +57,13 @@
 
             <br>
 
-            <div class="jumbotron">
+            <div class="p-5 rounded
+            {% if request.user.disk_set.all.0.theme != 'dark' %}
+                bg-light
+            {% else %}
+                bg-dark
+            {% endif %}
+            ">
                 <h1 class="display-4">Начните сейчас</h1>
                 <p class="lead">
                     Регистрация на сайте бесплатна. Вы можете начать пользоваться облачным хранилищем прямо сейчас!

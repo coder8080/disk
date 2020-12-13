@@ -12,6 +12,7 @@ class Disk(models.Model):
     size = models.IntegerField("Занятое на диске место", default=0)
     allSize = models.IntegerField("Всё место на диске пользователя", default=5000000000)
     path = models.CharField("Путь к папке", max_length=500)
+    theme = models.CharField("Название темы", default='light', max_length=20)
 
     def __str__(self):
         return self.user.username

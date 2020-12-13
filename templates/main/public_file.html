@@ -5,7 +5,7 @@
 {% endblock title %}
 
 {% block content %}
-    {% get_header 'public_file' %}
+    {% get_header 'public_file' request.user.disk_set.all.0.theme %}
     <div class="container text-center">
         <p class="h1">
             Публичный файл

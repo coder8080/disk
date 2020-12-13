@@ -1,0 +1,14 @@
+body {
+    background: black;
+    color: white;
+}
+
+/*#a200ff*/
+
+.icon {
+    fill: white;
+}
+
+.modal-content{
+    background-color: black !important;
+}

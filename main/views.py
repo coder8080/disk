@@ -146,7 +146,9 @@ class PrivateOfficeView(View):
             return render(request, 'main/main.html', {"busy": round(disk.size / 1000000),
                                                       "all": round(disk.allSize / 1000000),
                                                       "free": round((disk.allSize - disk.size) / 1048576),
-                                                      "pct": round(pct)})
+                                                      "pct": round(pct),
+                                                      "theme": request.user.disk_set.all()[0].theme
+                                                      })
         else:
             # Если не авторизован, то перенаправляем на страницу входа
             return redirect("/accounts/login")
@@ -424,3 +426,14 @@ class CreatePublicFileView(View):
         else:
             # Если нет, то перебрасываем его на страницу входа
             return redirect("/accounts/login")
+
+
+class ChangeThemeView(View):
+    def post(self, request):
+        theme = request.POST.get('theme')
+        disk = request.user.disk_set.all()[0]
+        disk.theme = theme
+        disk.save()
+        response = HttpResponse()
+        response.status_code = 200
+        return response
