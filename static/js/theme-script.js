@@ -17,7 +17,6 @@ theme_input.addEventListener("change", e => {
         body: form_data
     }).then(response => {
         if (response.ok) {
-            alert('Тема изменена. Для вступления изменений в силу страница перезагрузится.')
             document.location.reload()
         } else {
             alert("Ошибка.")

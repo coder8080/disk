@@ -19,11 +19,17 @@
                     Занято: {{ busy }} мб
                 </p>
                 <div class="progress
-                {% if theme == 'dark' %}
-                bg-dark
-                {% endif %}
-">
-                    <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{ pct }}%"
+                    {% if theme == 'dark' %}
+                        bg-dark
+                    {% endif %}
+                ">
+                    <div class="progress-bar progress-bar-striped
+                        {% if theme == 'light' %}
+                            bg-primary
+                        {% else %}
+                            bg-success
+                        {% endif %}
+                    " role="progressbar" style="width: {{ pct }}%"
                          aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <br>
