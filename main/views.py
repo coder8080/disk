@@ -5,7 +5,7 @@ import os
 # Импортируем инструмент для удаления папки со всеми вложенными файлами
 import shutil
 # Импортируем штуку для отправки данных пользователю
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 # Имопртируем возможность рендерить шаблоны и перекидывать пользователя на другие странички
 from django.shortcuts import render, redirect
 # Импортируем класс для вообще работы всего кода
@@ -42,16 +42,22 @@ def get_size(path):
 
 
 # Функция для шифрования файла
-def encrypt(filename, key):
+def encrypt(filename, folder, key):
+    temp_filename = "_" + filename
+    while os.path.exists(folder + temp_filename):
+        temp_filename = "_" + filename
+    pyAesCrypt.encryptFile(folder + filename, folder + temp_filename, key, 1024)
+    os.remove(folder + filename)
+    os.rename(folder + temp_filename, folder + filename)
     # Создаём переменную в которой окажется зашифрованная информация
-    fOut = io.BytesIO()
-    # Открываем нужный файл
-    with open(filename, "br") as fIn:
-        # Шифруем открытый файл в переменную
-        pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
-    with open(filename, "bw") as file:
-        # Записываем значение переменной в файл
-        file.write(fOut.getvalue())
+    # fOut = io.BytesIO()
+    # Открываем нужный фай
+    # with open(filename, "br") as fIn:
+    #     # Шифруем открытый файл в переменную
+    #     pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
+    # with open(filename, "bw") as file:
+    #     # Записываем значение переменной в файл
+    #     file.write(fOut.getvalue())
 
 
 # Функция для расшифровки файла
@@ -106,9 +112,9 @@ class UploadView(View):
                     fs.save(name=filename, content=file)
                     # Получаем путь к загруженному файлу
                     key = request.user.password[34:]
-                    # Шифруем файл
-                    abs_filename = "./media/files/" + request.user.username + "/" + folder + file.name
-                    encrypt(abs_filename, key)
+                    # Шифруем файл abs_filename = os.path.dirname( os.path.realpath("./media/files/")) + '/files/' +
+                    # request.user.username + '/' + folder + file.name
+                    encrypt(file.name, "./media/files/" + request.user.username + "/", key)
                     # Вычисляем и записываем новое количество занятого
                     disk.size = get_size(f"./media/files/{request.user.username}")
                     # Сохраняем изменения
