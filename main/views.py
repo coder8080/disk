@@ -43,21 +43,15 @@ def get_size(path):
 
 # Функция для шифрования файла
 def encrypt(filename, folder, key):
+    # Генерируем временное имя файла
     temp_filename = "_" + filename
     while os.path.exists(folder + temp_filename):
-        temp_filename = "_" + filename
+        temp_filename = "_" + filename \
+            # Шифруем файл
     pyAesCrypt.encryptFile(folder + filename, folder + temp_filename, key, 1024)
+    # Удаляем исходный файл и заменям его зашифрованным
     os.remove(folder + filename)
     os.rename(folder + temp_filename, folder + filename)
-    # Создаём переменную в которой окажется зашифрованная информация
-    # fOut = io.BytesIO()
-    # Открываем нужный фай
-    # with open(filename, "br") as fIn:
-    #     # Шифруем открытый файл в переменную
-    #     pyAesCrypt.encryptStream(fIn, fOut, key, 1024)
-    # with open(filename, "bw") as file:
-    #     # Записываем значение переменной в файл
-    #     file.write(fOut.getvalue())
 
 
 # Функция для расшифровки файла
@@ -82,7 +76,7 @@ class UploadView(View):
     """Загрузка файла"""
 
     def post(self, request):
-        # Начинаем (уже здесь!) готовить ответ пользователю
+        # Начинаем готовить ответ пользователю
         response = HttpResponse()
         # Смотрим, авторизован ли пользователь
         if request.user.is_authenticated:
@@ -107,19 +101,20 @@ class UploadView(View):
                 size_of_file = file.size
                 size_of_disk = disk.size
                 size_all = disk.allSize
+                # Смотрим, хватит ли места на диске пользователя для загрузки файла
                 if size_of_file + size_of_disk <= size_all:
                     # Загружаем файл на диск пользователя
                     fs.save(name=filename, content=file)
                     # Получаем путь к загруженному файлу
                     key = request.user.password[34:]
-                    # Шифруем файл abs_filename = os.path.dirname( os.path.realpath("./media/files/")) + '/files/' +
-                    # request.user.username + '/' + folder + file.name
+                    # Шифруем файл
                     encrypt(file.name, "./media/files/" + request.user.username + "/", key)
                     # Вычисляем и записываем новое количество занятого
                     disk.size = get_size(f"./media/files/{request.user.username}")
                     # Сохраняем изменения
                     disk.save()
                 else:
+                    # Если у пользователя не хватило места
                     print(Fore.RED)
                     print(f"У пользователя {request.user.username} закончилось место на диске")
                     print(Style.RESET_ALL)
@@ -145,6 +140,7 @@ class PrivateOfficeView(View):
         if request.user.is_authenticated:
             # Получаем диск пользователя
             disk = Disk.objects.get(user__username=request.user.username)
+            # Получаем, сколько процетов места занято на диске пользователя
             pct = ((disk.size / 1000000) / (disk.allSize / 1000000)) * 100
             # Отправляем шаблон с данными пользователю
             return render(request, 'main/main.html', {"busy": round(disk.size / 1000000),
@@ -195,14 +191,13 @@ class DiskView(View):
                 files = folder[0][2]
                 # Сортируем файлы
                 for file in files:
-                    # Получаем расширение файла
+                    # Проверяем, находится ли файл в публичном доступе
                     try:
                         model = PublicFile.objects.get(
                             pathToFile="./media/files/" + request.user.username + dir + "/" + file)
                         linked = True
                     except:
                         linked = False
-                    # Проверяем расширение файла и то, в публичном ли он доступе
                     if linked is True:
                         list_to_add = [file, model.url]
                         files_linked += [list_to_add]
@@ -249,10 +244,9 @@ class DownloadView(View):
                 # Если да, то скачиваем из выбранной пользователем директории
                 _folder = folder.split("`")
                 folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            # Получаем абсолютный путь к будущему файлу
+            # Получаем абсолютный путь к скачиваемому файлу
             filepath = folder + filename
             password = request.user.password
-            print(filepath)
             final_data = decrypt(filepath, password[34:])
             # Отправляем файл пользователю
             response = HttpResponse(final_data, 'application')
@@ -290,6 +284,7 @@ class RemoveView(View):
                 # Если удаляемый объект является папкой
                 # Удаляем папку
                 shutil.rmtree(filepath)
+                # Используем shutil, потому что os отказывается удалять папку если в ней есть файлы
                 # Записываем статус успешного выполнения запроса в подготовленный ответ
                 response.status_code = 200
                 # Вычисляем и записываем новый объём занятого места
@@ -321,7 +316,7 @@ class RemoveView(View):
 
 
 class CreateFolderView(View):
-    """Чтобы пользователь мог создавать папки"""
+    """Создание папок"""
 
     def post(self, request):
         print(Fore.RED)
@@ -339,14 +334,11 @@ class CreateFolderView(View):
                 # Если да, то создаём в выбранной пользователем директории
                 _folder = dir.split("`")
                 dir = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
-            # Получаем абсолютный путь к будущемей папке
+            # Получаем абсолютный путь к будущей папке
             path = dir + name
             # Создаём папку
-            print(Fore.RED)
-            print(path)
-            print(Style.RESET_ALL)
             os.mkdir(path)
-            # Перенаправляем пользователля обратно на страницу со списком файлов
+            # Отправляем пользователю информацию об успелном выполнении запроса
             response = HttpResponse()
             response.status_code = 200
             return response
@@ -355,26 +347,29 @@ class CreateFolderView(View):
             return redirect("/accounts/login")
 
 
-class ReWriteView(View):
-    """Запись изменений, внесённых пользователем в текстовый файл на странице предпросмотра"""
+# Следующий далее закомментированный код - страрая фича, которой сейчас уже нет, но код я оставил на всякий случай (
+# вдруг захочется вернуть эту возможность)
 
-    def post(self, request):
-        # Получаем данные
-        folder = request.POST.get("folder")
-        filename = request.POST.get("filename")
-        text = request.POST.get("text")
-        # Проверяем, авторизован ли пользователь
-        if request.user.is_authenticated:
-            # Запусываем данные в файл
-            filepath = folder + filename
-            file = open(filepath, "w")
-            file.write(text)
-            file.close()
-            # Перенаправляем пользователля обратно на страницу со списком файлов
-            return redirect("/mydisk")
-        else:
-            # Если нет, то перенаправляем пользователя на страницу входа
-            return redirect("/accounts/login")
+# class ReWriteView(View):
+#     """Запись изменений, внесённых пользователем в текстовый файл на странице предпросмотра"""
+#
+#     def post(self, request):
+#         # Получаем данные
+#         folder = request.POST.get("folder")
+#         filename = request.POST.get("filename")
+#         text = request.POST.get("text")
+#         # Проверяем, авторизован ли пользователь
+#         if request.user.is_authenticated:
+#             # Запусываем данные в файл
+#             filepath = folder + filename
+#             file = open(filepath, "w")
+#             file.write(text)
+#             file.close()
+#             # Перенаправляем пользователля обратно на страницу со списком файлов
+#             return redirect("/mydisk")
+#         else:
+#             # Если нет, то перенаправляем пользователя на страницу входа
+#             return redirect("/accounts/login")
 
 
 class PublicFileView(View):
@@ -433,11 +428,16 @@ class CreatePublicFileView(View):
 
 
 class ChangeThemeView(View):
+    """Смена темы оформления"""
+
     def post(self, request):
+        # Получаем тему на которую хочет переключиться пользователь
         theme = request.POST.get('theme')
         disk = request.user.disk_set.all()[0]
+        # Устанавливаем нужную тему
         disk.theme = theme
         disk.save()
+        # Отправляем информацию об успешном выполнении запроса
         response = HttpResponse()
         response.status_code = 200
         return response
