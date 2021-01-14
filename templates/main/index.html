@@ -55,21 +55,17 @@
                 </div>
             </div>
 
+            {% if request.user.is_authenticated is False %}
             <br>
 
-            <div class="p-5 rounded
-            {% if request.user.disk_set.all.0.theme != 'dark' %}
-                bg-light
-            {% else %}
-                bg-dark
-            {% endif %}
-            ">
+            <div class="p-5 rounded bg-light">
                 <h1 class="display-4 header">Начните сейчас</h1>
                 <p class="lead">
                     Регистрация на сайте бесплатна. Вы можете начать пользоваться облачным хранилищем прямо сейчас!
                 </p>
                 <a class="btn btn-outline-primary btn-lg" href="/accounts/signup" role="button">Зарегестрироваться</a>
             </div>
+            {% endif %}
 
             <hr>
 

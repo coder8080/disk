@@ -186,8 +186,11 @@
     <div class="modal fade" id="uploadFilesModal" tabindex="-1" aria-labelledby="uploadFilesModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-                <div class="modal-header">
+            <div class="modal-content
+            {% if request.user.disk_set.all.0.theme == 'dark' %}
+            bg-dark
+            {% endif %}">
+                <div class="modal-header header">
                     <h5 class="modal-title" id="uploadFilesModalLabel">Загрузка файлов</h5>
                     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -213,9 +216,12 @@
     <div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true"
          aria-labelledby="uploadFilesModalLabel">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark">
+            <div class="modal-content
+            {% if request.user.disk_set.all.0.theme == 'dark' %}
+            bg-dark
+            {% endif %}">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createFolderModalLabel">
+                    <h5 class="modal-title header" id="createFolderModalLabel">
                         Создание папки
                     </h5>
                     <button type="  button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
@@ -224,7 +230,7 @@
                     <form class="action-form" id="new-folder-form">
                         <center>
                             <input type="hidden" value="{{ dir }}" id="dir">
-                            <input type="text" name="login" id="folderName" class="form-control" placeholder="Название"
+                            <input type="text" name="login" id="" class="form-control" placeholder="Название"
                                    autocomplete="off" required>
                         </center>
                     </form>

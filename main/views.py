@@ -108,7 +108,7 @@ class UploadView(View):
                     # Получаем путь к загруженному файлу
                     key = request.user.password[34:]
                     # Шифруем файл
-                    encrypt(file.name, "./media/files/" + request.user.username + "/", key)
+                    encrypt(file.name, "./media/files/" + request.user.username + "/" + folder, key)
                     # Вычисляем и записываем новое количество занятого
                     # Привет я Рома и я просто пишу комментарий в новом pycharm а сй
                     disk.size = get_size(f"./media/files/{request.user.username}")
