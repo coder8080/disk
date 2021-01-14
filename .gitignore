@@ -4,3 +4,4 @@ media/files/*
 .idea
 static/admin/
 db.sqlite3
+__pychache__

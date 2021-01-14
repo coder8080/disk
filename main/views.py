@@ -110,6 +110,7 @@ class UploadView(View):
                     # Шифруем файл
                     encrypt(file.name, "./media/files/" + request.user.username + "/", key)
                     # Вычисляем и записываем новое количество занятого
+                    # Привет я Рома и я просто пишу комментарий в новом pycharm а сй
                     disk.size = get_size(f"./media/files/{request.user.username}")
                     # Сохраняем изменения
                     disk.save()
@@ -404,10 +405,10 @@ class CreatePublicFileView(View):
 
     def post(self, request):
         # Проверяем, авторизован ли пользователь
-        filename = request.POST.get("name")
-        folder = request.POST.get("folder")
-        _folder = folder
         if request.user.is_authenticated:
+            filename = request.POST.get("name")
+            folder = request.POST.get("folder")
+            _folder = folder
             # Проверяем, указана ли папка
             if folder == "none":
                 # Если нет, значит выбранный файл в главной директории
