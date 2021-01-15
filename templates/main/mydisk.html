@@ -9,8 +9,6 @@
 {% block content %}
     {% get_header 'mydisk' request %}
     <link rel="stylesheet" href="{% static 'styles/disk-style.css' %}">
-    <script src="{% static 'js/buffer-script.js' %}"></script>
-    <script src="{% static 'js/disk-script.js' %}"></script>
     <div class="container text-center header">
         <h2>
             Диск пользователя {{ user.username }}
@@ -224,22 +222,22 @@
                     <h5 class="modal-title header" id="createFolderModalLabel">
                         Создание папки
                     </h5>
-                    <button type="  button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <form class="action-form" id="new-folder-form">
-                        <center>
-                            <input type="hidden" value="{{ dir }}" id="dir">
-                            <input type="text" name="login" id="" class="form-control" placeholder="Название"
-                                   autocomplete="off" required>
-                        </center>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                    <button class="btn btn-primary" onclick="createFolder()">Создать папку</button>
-                </div>
+                <form class="action-form" id="new-folder-form">
+                    <div class="modal-body text-center">
+                        <input type="hidden" value="{{ dir }}" id="dir">
+                        <input type="text" name="login" id="folderName" class="form-control" placeholder="Название"
+                               autocomplete="off" required>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="Создать папку">
+                        <button class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+    <script src="{% static 'js/buffer-script.js' %}"></script>
+    <script src="{% static 'js/disk-script.js' %}"></script>
 {% endblock content %}

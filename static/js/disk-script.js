@@ -1,5 +1,8 @@
-function createFolder() {
-    /* Функция создания папки */
+let new_folder_form = document.getElementById("new-folder-form")
+console.log(new_folder_form)
+new_folder_form.addEventListener("submit", (e) => {
+    console.log("Обработка началась")
+    e.preventDefault()
     //Получаем данные из страницы
     let name = document.getElementById("folderName").value
     // document.getElementById("folderName").value = ""
@@ -14,7 +17,7 @@ function createFolder() {
         method: "POST",
         body: form_data
     }).then(response => sayToUser(response, "create", name))
-}
+})
 
 function remove(dir, name, action) {
     /* Функция удаление папки */
