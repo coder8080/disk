@@ -101,7 +101,9 @@ function sayToUser(response, operation, name) {
                     </g>
                 </svg>
                 <h4 style="max-width: 50%; overflow: auto">
-                    ${name}
+                    <a href="${final}" style="text-decoration: none; color: #c3c3c3">
+                        ${name}                
+                    </a>
                 </h4>
                 <a href="${final}"
                    title="открыть">
