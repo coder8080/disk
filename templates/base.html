@@ -14,6 +14,8 @@
         <link rel="stylesheet" href="{% static 'styles/themes/dark.css' %}">
     {% elif request.user.disk_set.all.0.theme == 'neon' %}
         <link rel="stylesheet" href="{% static 'styles/themes/neon.css' %}">
+    {% elif request.user.disk_set.all.0.theme == 'light' %}
+                <link rel="stylesheet" href="{% static 'styles/themes/light.css' %}">
     {% endif %}
     {% block extra-styles %}
     {% endblock %}
