@@ -12,6 +12,8 @@
           integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     {% if request.user.disk_set.all.0.theme == 'dark' %}
         <link rel="stylesheet" href="{% static 'styles/themes/dark.css' %}">
+    {% elif request.user.disk_set.all.0.theme == 'neon' %}
+        <link rel="stylesheet" href="{% static 'styles/themes/neon.css' %}">
     {% endif %}
     {% block extra-styles %}
     {% endblock %}

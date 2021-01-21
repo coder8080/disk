@@ -20,6 +20,8 @@
                 <button type="button" class="btn
                 {% if request.user.disk_set.all.0.theme == 'dark' %}
                 btn-success
+                {% elif request.user.disk_set.all.0.theme == 'neon' %}
+                btn-outline-primary
                 {% else %}
                 btn-primary
                 {% endif %}
@@ -29,6 +31,8 @@
                 <button type="button" class="btn
                 {% if request.user.disk_set.all.0.theme == 'dark' %}
                 btn-success
+                {% elif request.user.disk_set.all.0.theme == 'neon' %}
+                btn-outline-primary
                 {% else %}
                 btn-primary
                 {% endif %}
@@ -38,6 +42,8 @@
                 <button type="button" class="btn
                 {% if request.user.disk_set.all.0.theme == 'dark' %}
                 btn-success
+                {% elif request.user.disk_set.all.0.theme == 'neon' %}
+                btn-outline-primary
                 {% else %}
                 btn-primary
                 {% endif %}
@@ -68,7 +74,11 @@
                             </g>
                         </svg>
                         <h4 style="max-width: 50%; overflow: auto">
-                            <a href="/mydisk{% if dir != "none" %}/{{ dir }}`{% else %}/{% endif %}{{ folder }}" style="text-decoration: none; color: #c3c3c3">
+                            <a href="/mydisk{% if dir != "none" %}/{{ dir }}`{% else %}/{% endif %}{{ folder }}"
+                               style="text-decoration: none;
+                                       {% if request.user.disk_set.all.0.theme == 'dark' %}
+                                           color: #c3c3c3
+                                       {% endif %}">
                                 {{ folder }}
                             </a>
                         </h4>
@@ -187,7 +197,7 @@
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content
-            {% if request.user.disk_set.all.0.theme == 'dark' %}
+            {% if request.user.disk_set.all.0.theme == 'dark' or request.user.disk_set.all.0.theme == 'neon' %}
             bg-dark
             {% endif %}">
                 <div class="modal-header header">
@@ -207,8 +217,22 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                    <button type="button" class="btn btn-primary" onclick="uploadFiles()">Загрузить файлы</button>
+                    <button type="button" class="btn
+                    {% if request.user.disk_set.all.0.theme != 'neon' %}
+                    btn-secondary
+                    {% else %}
+                    btn-outline-primary
+                    {% endif %}
+                    " data-dismiss="modal">Закрыть
+                    </button>
+                    <button type="button" class="btn
+                    {% if request.user.disk_set.all.0.theme != 'neon' %}
+                    btn-primary
+                    {% else %}
+                    btn-outline-primary
+                    {% endif %}
+                    " onclick="uploadFiles()">Загрузить файлы
+                    </button>
                 </div>
             </div>
         </div>
@@ -217,7 +241,7 @@
          aria-labelledby="uploadFilesModalLabel">
         <div class="modal-dialog">
             <div class="modal-content
-            {% if request.user.disk_set.all.0.theme == 'dark' %}
+            {% if request.user.disk_set.all.0.theme == 'dark' or request.user.disk_set.all.0.theme == 'neon' %}
             bg-dark
             {% endif %}">
                 <div class="modal-header">
@@ -233,8 +257,20 @@
                                autocomplete="off" required>
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" class="btn btn-primary" value="Создать папку">
-                        <button class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                        <input type="submit" class="btn
+                            {% if request.user.disk_set.all.0.theme != 'neon' %}
+                            btn-primary
+                            {% else %}
+                            btn-outline-primary
+                            {% endif %}
+                        " value="Создать папку">
+                        <button class="btn
+                            {% if request.user.disk_set.all.0.theme != 'neon' %}
+                                btn-secondary
+                            {% else %}
+                                btn-outline-primary
+                            {% endif %}
+                            " data-dismiss="modal">Закрыть</button>
                     </div>
                 </form>
             </div>

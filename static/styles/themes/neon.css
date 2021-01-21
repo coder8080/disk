@@ -1,0 +1,37 @@
+body {
+    background-color: black;
+    color: #80ffdb;
+    text-shadow: 0px 0px 10px #64dfdf, 0px 0px 10px #64dfdf;
+}
+
+.header {
+    color: #0d6efd !important;
+    text-shadow: 0px 0px 10px #0d6efd, 0px 0px 10px #0d6efd;
+}
+
+.btn-outline-primary {
+    text-shadow: 0px 0px 10px #0d6efd, 0px 0px 10px #0d6efd !important;
+}
+
+.btn-outline-danger {
+    text-shadow: 0px 0px 10px #dc3545, 0px 0px 10px #dc3545 !important;
+}
+
+h4 a {
+    color: #80ffdb;
+    text-shadow: 0px 0px 10px #64dfdf, 0px 0px 10px #64dfdf !important;
+}
+
+h4 a:hover{
+        color: #80ffdb !important;
+}
+
+/*.icon {*/
+/*    fill: #a200ff;*/
+/*}*/
+
+svg {
+    fill: #80ffdb;
+    /*fillter: drop-shadow(3px 3px 10px #a200ff), drop-shadow(-3px -3px 10px #a200ff), drop-shadow(3px -3px 10px #a200ff), drop-shadow(-3px 3px 10px #a200ff);*/
+    filter: drop-shadow(0px 0px 10px #64dfdf) drop-shadow(-0px -0px 10px #64dfdf);
+}
