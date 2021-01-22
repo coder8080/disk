@@ -7,7 +7,7 @@
     <main role="main">
         {% get_header 'main' request %}
         <div class="p-5" style="
-                {% if request.user.disk_set.all.0.theme == 'light' %}
+                {% if request.user.disk_set.all.0.theme != 'neon' and request.user.disk_set.all.0.theme != 'dark' %}
                     background: url('/static/images/new_year_back.jpg') fixed;
                     background-size: cover;
                 {% endif %}

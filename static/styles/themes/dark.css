@@ -13,6 +13,6 @@ body {
     fill: #c3c3c3;
 }
 
-h4 a {
-    color: #c3c3c3;
+li h4 a {
+    color: #c3c3c3 !important;
 }
