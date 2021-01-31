@@ -48,7 +48,8 @@ def encrypt(filename, folder, key):
     while os.path.exists(folder + temp_filename):
         temp_filename = "_" + filename \
             # Шифруем файл
-    pyAesCrypt.encryptFile(folder + filename, folder + temp_filename, key, 1024)
+    pyAesCrypt.encryptFile(folder + filename, folder +
+                           temp_filename, key, 1024)
     # Удаляем исходный файл и заменям его зашифрованным
     os.remove(folder + filename)
     os.rename(folder + temp_filename, folder + filename)
@@ -61,7 +62,8 @@ def decrypt(filename, key):
     # Открываем нужный файл
     with open(filename, "br") as fIn:
         # Шифруем открытый файл в переменную
-        pyAesCrypt.decryptStream(fIn, data, key, 1024, os.path.getsize(filename))
+        pyAesCrypt.decryptStream(fIn, data, key, 1024,
+                                 os.path.getsize(filename))
     return data.getvalue()
 
 
@@ -86,7 +88,7 @@ class UploadView(View):
             files = request.FILES.getlist('files')
             # Получаем папку, в которую надо загруить файл
             folder = request.POST.get("dir")
-            # Корректируем путь для сохранения файла
+            #    Корректируем путь для сохранения файла
             if folder == "none" or folder == "":
                 folder = ""
             else:
@@ -108,16 +110,19 @@ class UploadView(View):
                     # Получаем путь к загруженному файлу
                     key = request.user.password[34:]
                     # Шифруем файл
-                    encrypt(file.name, "./media/files/" + request.user.username + "/" + folder, key)
+                    encrypt(file.name, "./media/files/" +
+                            request.user.username + "/" + folder, key)
                     # Вычисляем и записываем новое количество занятого
                     # Привет я Рома и я просто пишу комментарий в новом pycharm а сй
-                    disk.size = get_size(f"./media/files/{request.user.username}")
+                    disk.size = get_size(
+                        f"./media/files/{request.user.username}")
                     # Сохраняем изменения
                     disk.save()
                 else:
                     # Если у пользователя не хватило места
                     print(Fore.RED)
-                    print(f"У пользователя {request.user.username} закончилось место на диске")
+                    print(
+                        f"У пользователя {request.user.username} закончилось место на диске")
                     print(Style.RESET_ALL)
                     response = HttpResponse()
                     response.status_code = 404
@@ -244,7 +249,8 @@ class DownloadView(View):
             else:
                 # Если да, то скачиваем из выбранной пользователем директории
                 _folder = folder.split("`")
-                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
+                folder = "./media/files/" + request.user.username + \
+                    "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к скачиваемому файлу
             filepath = folder + filename
             password = request.user.password
@@ -273,7 +279,8 @@ class RemoveView(View):
             else:
                 # Если да, то значит удаляемый объект находится в выбранной пользователем директории
                 _folder = folder.split("`")
-                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
+                folder = "./media/files/" + request.user.username + \
+                    "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к удаляемому объекту
             filepath = folder + foldername
             # Подготавливаем ответ
@@ -334,7 +341,8 @@ class CreateFolderView(View):
             else:
                 # Если да, то создаём в выбранной пользователем директории
                 _folder = dir.split("`")
-                dir = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
+                dir = "./media/files/" + request.user.username + \
+                    "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к будущей папке
             path = dir + name
             # Создаём папку
@@ -416,10 +424,12 @@ class CreatePublicFileView(View):
             else:
                 # Если да, значит выбранный файл в другой директории
                 _folder = folder.split("`")
-                folder = "./media/files/" + request.user.username + "/" + "/".join(_folder) + "/"
+                folder = "./media/files/" + request.user.username + \
+                    "/" + "/".join(_folder) + "/"
             # Получаем абсолютный путь к выбранному файлу
             filepath = folder + filename
-            model = PublicFile.objects.create(pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
+            model = PublicFile.objects.create(
+                pathToFile=filepath, disk_id=Disk.objects.get(user=request.user).id)
             model.save()
             # Перенаправляем пользователя обратно на страницу со списком файлов
             return HttpResponse(model.url)

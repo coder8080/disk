@@ -5,3 +5,6 @@ media/files/*
 static/admin/
 db.sqlite3
 __pychache__
+disk/__pychache__
+main/templatetags/__pychache__
+main/__pychache__
