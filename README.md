@@ -50,6 +50,16 @@ pip install -r ./requirements.txt
 python manage.py runserver
 ```
 
+## Скриншоты
+Светлая тема
+![ошибка отображения](https://raw.githubusercontent.com/coder8080/disk/master/screenshots/light.png)
+
+Тёмная тема
+![ошибка отображения](https://raw.githubusercontent.com/coder8080/disk/master/screenshots/dark.png)
+
+Неоновая тема
+![ошибка отображения](https://raw.githubusercontent.com/coder8080/disk/master/screenshots/neon.png)
+
 ## Планы
 - [X] ~~добавить возможность загружать и скачивать файлы~~
 - [X] ~~добавить возможность создавать папки~~

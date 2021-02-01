@@ -7,7 +7,7 @@
     <main role="main">
         {% get_header 'main' request %}
         <div class="p-5" style="
-                {% if request.user.disk_set.all.0.theme != 'dark' %}
+                {% if request.user.disk_set.all.0.theme != 'neon' and request.user.disk_set.all.0.theme != 'dark' %}
                     background: url('/static/images/new_year_back.jpg') fixed;
                     background-size: cover;
                 {% endif %}
@@ -18,7 +18,13 @@
                     Disk - система облачного хранения файлов
                 </p>
                 <p>
-                    <a class="btn btn-success btn-lg" href="https://github.com/coder8080/disk" role="button">
+                    <a class="btn btn-lg
+                    {% if request.user.disk_set.all.0.theme != 'neon' %}
+                    btn-success
+                    {% else %}
+                    btn-outline-primary
+                    {% endif %}
+                    " href="https://github.com/coder8080/disk" role="button">
                         Станица проекта &raquo;
                     </a>
                 </p>
@@ -56,15 +62,16 @@
             </div>
 
             {% if request.user.is_authenticated is False %}
-            <br>
+                <br>
 
-            <div class="p-5 rounded bg-light">
-                <h1 class="display-4 header">Начните сейчас</h1>
-                <p class="lead">
-                    Регистрация на сайте бесплатна. Вы можете начать пользоваться облачным хранилищем прямо сейчас!
-                </p>
-                <a class="btn btn-outline-primary btn-lg" href="/accounts/signup" role="button">Зарегестрироваться</a>
-            </div>
+                <div class="p-5 rounded bg-light">
+                    <h1 class="display-4 header">Начните сейчас</h1>
+                    <p class="lead">
+                        Регистрация на сайте бесплатна. Вы можете начать пользоваться облачным хранилищем прямо сейчас!
+                    </p>
+                    <a class="btn btn-outline-primary btn-lg" href="/accounts/signup"
+                       role="button">Зарегестрироваться</a>
+                </div>
             {% endif %}
 
             <hr>

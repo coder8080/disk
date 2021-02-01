@@ -97,14 +97,14 @@ class UploadView(View):
             # Получаем нужный диск
             disk = Disk.objects.get(user__username=request.user.username)
             for file in files:
-                # Получаем абсолютный путь к будущему файлу
-                filename = "./files/" + request.user.username + "/" + folder + file.name
                 # Получаем размер файла, занятое на диске пользователя место и объём диска пользователя
                 size_of_file = file.size
                 size_of_disk = disk.size
                 size_all = disk.allSize
                 # Смотрим, хватит ли места на диске пользователя для загрузки файла
                 if size_of_file + size_of_disk <= size_all:
+                    # Получаем абсолютный путь к будущему файлу
+                    filename = "./files/" + request.user.username + "/" + folder + file.name
                     # Загружаем файл на диск пользователя
                     fs.save(name=filename, content=file)
                     # Получаем путь к загруженному файлу
@@ -113,9 +113,7 @@ class UploadView(View):
                     encrypt(file.name, "./media/files/" +
                             request.user.username + "/" + folder, key)
                     # Вычисляем и записываем новое количество занятого
-                    # Привет я Рома и я просто пишу комментарий в новом pycharm а сй
-                    disk.size = get_size(
-                        f"./media/files/{request.user.username}")
+                    disk.size = get_size(f"./media/files/{request.user.username}")
                     # Сохраняем изменения
                     disk.save()
                 else:

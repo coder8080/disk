@@ -19,7 +19,7 @@
                     Занято: {{ busy }} мб
                 </p>
                 <div class="progress
-                    {% if theme == 'dark' %}
+                    {% if theme == 'dark' or theme == 'neon' %}
                         bg-dark
                     {% endif %}
                 ">
@@ -44,17 +44,16 @@
                 </button>
             </div>
             <div class="col-md">
-                <p class="h2">
+                <p class="h2 header">
                     Тема оформления:
                 </p>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="theme-switch"
-                            {% if theme == 'dark' %}
-                           checked
-                            {% endif %}
-                    >
+                    <select id="theme-switch" class="form-select form-select-md">
+                        <option value="light" {% if theme == 'light' %}selected{% endif %}>светлая</option>
+                        <option value="dark" {% if theme == 'dark' %}selected{% endif %}>тёмная</option>
+                        <option value="neon" {% if theme == 'neon' %}selected{% endif %}>неоновая</option>
+                    </select>
                     {% csrf_token %}
-                    <label class="form-check-label" for="theme-switch">Тёмная тема</label>
                 </div>
             </div>
         </div>
