@@ -2,6 +2,7 @@ venv
 media/files/*
 !media/files/.keepdir
 .idea
+.vscode/*
 .vscode
 static/admin/
 db.sqlite3
